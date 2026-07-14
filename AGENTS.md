@@ -18,6 +18,7 @@
 - Idioma UI: español (default) + inglés.
 - **Campos de hero editables** (schema `Hotel`: `heroImage`, `heroTitle`, `heroDescription` añadidos; columnas creadas en Supabase). Expuestos en `/api/settings` (PUBLIC_FIELDS). Editables en `app/admin/settings/page.js` (tipo `logo` para imagen, `text` para título, `textarea` para descripción). Home (`app/page.js`) usa `settings.heroTitle || settings.hotelName || t('hero.heading')`, `settings.heroDescription || t('hero.body')`, y `settings.heroImage` como `backgroundImage` del hero (con overlay oscuro). El nombre del hotel (`hotelName`) es editable y se muestra en el hero por defecto (estilo "como antes").
 - Header home: para invitados muestra botón **"Crear Cuenta"** (`/register`, fondo `--primary`) + "Iniciar Sesión" (`/login`).
+- **Servicios Esenciales editables**: modelo `Service` (id, name, description, icon, image) + tabla creada en Supabase + 3 sembrados por defecto. API `/api/services` (GET lista, POST crea/edita) y `/api/services/[id]` (GET, DELETE). Admin `/admin/services` (interfaz estilo Habitaciones/Inventario: grid de tarjetas, modal crear/editar con nombre, icono emoji, descripción e imagen, y borrar). Home (`app/page.js`) renderiza los servicios dinámicamente desde `/api/services`. La nav del admin incluye "Servicios" en dashboard/rooms/bookings/settings.
 
 ## Work State
 ### Completed
@@ -32,6 +33,7 @@
     - Hero editable: schema + columnas Supabase (`heroImage`, `heroTitle`, `heroDescription`); `/api/settings` las expone; `admin/settings/page.js` las edita; `app/page.js` las usa (título por defecto = `hotelName`, editable). Nombre del hotel editable en panel y se muestra en hero "como antes".
     - Header home: botón **"Crear Cuenta"** (`/register`) para invitados + "Iniciar Sesión".
     - **Fix pago "atrás"**: `stripe-mock/page.js` tiene botón **"← Volver"** (Link a `/`); `app/api/checkout/route.js` `cancel_url` corregido de `/rooms/[id]` (ruta inexistente → 404) a `/?cancelled=true`.
+    - **Servicios Esenciales editables (commit `8805066`)**: modelo `Service` + tabla Supabase + 3 sembrados; API `/api/services` y `/api/services/[id]`; admin `/admin/services` (estilo Inventario) con nav "Servicios" en todas las páginas admin; home renderiza servicios dinámicamente. Verificado `/api/services` devuelve los 3 servicios.
 
 ### Active
 - (ninguno en curso)

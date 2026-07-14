@@ -75,6 +75,9 @@ export default function AdminDashboard() {
           <Link href="/admin" style={{ ...styles.navItem, ...styles.navItemActive }}>
             📊 {t('admin.dashboard')}
           </Link>
+          <Link href="/admin/analytics" style={styles.navItem}>
+            📈 {t('admin.analytics')}
+          </Link>
           <Link href="/admin/bookings" style={styles.navItem}>
             📅 {t('admin.bookings')}
           </Link>
