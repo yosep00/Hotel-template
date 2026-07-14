@@ -19,6 +19,9 @@ model Hotel {
   logoUrl        String?
   primaryColor   String?
   accentColor    String?
+  heroImage      String?
+  heroTitle      String?
+  heroDescription String?
   currency        String @default("USD")
   updatedAt       DateTime @updatedAt
 }

@@ -16,6 +16,9 @@ const PUBLIC_FIELDS = [
   { key: 'logoUrl', label: 'admin.fLogo', type: 'logo' },
   { key: 'primaryColor', label: 'admin.fPrimary', type: 'color' },
   { key: 'accentColor', label: 'admin.fAccent', type: 'color' },
+  { key: 'heroImage', label: 'admin.fHeroImage', type: 'logo' },
+  { key: 'heroTitle', label: 'admin.fHeroTitle', type: 'text', placeholder: 'Grand Oasis' },
+  { key: 'heroDescription', label: 'admin.fHeroDescription', type: 'textarea', placeholder: 'Descubre el lujo frente al mar...' },
 ];
 
 export default function AdminSettings() {

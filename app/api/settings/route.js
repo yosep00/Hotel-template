@@ -13,6 +13,9 @@ const PUBLIC_FIELDS = [
   'logoUrl',
   'primaryColor',
   'accentColor',
+  'heroImage',
+  'heroTitle',
+  'heroDescription',
 ];
 
 function sanitize(settings) {

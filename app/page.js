@@ -314,20 +314,28 @@ export default function Home() {
               )}
             </div>
           ) : (
-            <Link href="/login" className="btn-admin-header" style={{ textDecoration: 'none' }}>
-              {t('nav.login')}
-            </Link>
+            <>
+              <Link href="/register" className="btn-admin-header" style={{ textDecoration: 'none', background: 'var(--primary)', color: '#fff' }}>
+                {t('nav.register')}
+              </Link>
+              <Link href="/login" className="btn-admin-header" style={{ textDecoration: 'none' }}>
+                {t('nav.login')}
+              </Link>
+            </>
           )}
         </div>
       </header>
 
       {/* HERO SECTION */}
-      <section id="hero" style={styles.hero}>
+      <section id="hero" style={settings.heroImage ? {
+        ...styles.hero,
+        backgroundImage: `linear-gradient(rgba(26,26,26,0.45), rgba(26,26,26,0.45)), url("${settings.heroImage}")`
+      } : styles.hero}>
         <div style={styles.heroContent} className="animate-slide">
           <span style={styles.heroSubtitle}>{t('hero.kicker')}</span>
-          <h1 style={styles.heroTitle}>{t('hero.heading')}</h1>
+          <h1 style={styles.heroTitle}>{settings.heroTitle || settings.hotelName || t('hero.heading')}</h1>
           <p style={styles.heroDescription}>
-            {t('hero.body')}
+            {settings.heroDescription || t('hero.body')}
           </p>
           <a href="#rooms-section" style={styles.heroBtn}>{t('hero.viewRooms')}</a>
         </div>

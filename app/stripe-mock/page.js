@@ -116,6 +116,7 @@ function StripeMockContent() {
             <div style={styles.stripeBadge}>MOCK SANDBOX</div>
           </Link>
           <div style={styles.summaryContent}>
+            <Link href="/" style={styles.backLinkTop}>← Volver</Link>
             <span style={styles.hotelName}><BrandName /></span>
             <h1 style={styles.amount}>${booking.totalPrice.toFixed(2)} <span style={styles.currency}>USD</span></h1>
             
@@ -500,5 +501,13 @@ const styles = {
     textDecoration: 'none',
     fontWeight: '600',
     marginTop: '20px',
-  }
+  },
+  backLinkTop: {
+    display: 'inline-block',
+    color: '#697386',
+    fontSize: '14px',
+    fontWeight: '600',
+    textDecoration: 'none',
+    marginBottom: '24px',
+  },
 };
