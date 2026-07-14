@@ -40,6 +40,15 @@ model Room {
   createdAt       DateTime @default(now())
 }
 
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  icon        String   @default("✨")
+  image       String?
+  createdAt   DateTime @default(now())
+}
+
 model Booking {
   id             String   @id @default(cuid())
   roomId         String

@@ -81,6 +81,9 @@ export default function AdminDashboard() {
           <Link href="/admin/rooms" style={styles.navItem}>
             🛏️ {t('admin.rooms')}
           </Link>
+          <Link href="/admin/services" style={styles.navItem}>
+            💎 {t('admin.services')}
+          </Link>
           <Link href="/admin/settings" style={styles.navItem}>
             ⚙️ {t('admin.settings')}
           </Link>

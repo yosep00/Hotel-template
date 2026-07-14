@@ -12,6 +12,7 @@ export default function Home() {
   const { t } = useTranslation();
   const settings = useHotelSettings() || {};
   const [rooms, setRooms] = useState([]);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
@@ -78,6 +79,11 @@ export default function Home() {
 
     // Cargar habitaciones
     fetchRooms();
+    // Cargar servicios
+    fetch('/api/services')
+      .then((res) => res.json())
+      .then((data) => setServices(Array.isArray(data) ? data : []))
+      .catch(() => {});
   }, []);
 
   async function fetchRooms() {
@@ -506,21 +512,13 @@ export default function Home() {
         </div>
 
         <div style={styles.servicesGrid}>
-          <div style={styles.serviceCard} className="glass">
-            <span style={styles.serviceIcon}>☕</span>
-            <h3>{t('services.breakfastT')}</h3>
-            <p>{t('services.breakfastD')}</p>
-          </div>
-          <div style={styles.serviceCard} className="glass">
-            <span style={styles.serviceIcon}>🧘</span>
-            <h3>{t('services.meditationT')}</h3>
-            <p>{t('services.meditationD')}</p>
-          </div>
-          <div style={styles.serviceCard} className="glass">
-            <span style={styles.serviceIcon}>🚲</span>
-            <h3>{t('services.bikesT')}</h3>
-            <p>{t('services.bikesD')}</p>
-          </div>
+          {services.map((service) => (
+            <div key={service.id} style={styles.serviceCard} className="glass">
+              <span style={styles.serviceIcon}>{service.icon || '✨'}</span>
+              <h3>{service.name}</h3>
+              <p>{service.description}</p>
+            </div>
+          ))}
         </div>
       </section>
 
