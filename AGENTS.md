@@ -19,6 +19,7 @@
 - **Campos de hero editables** (schema `Hotel`: `heroImage`, `heroTitle`, `heroDescription` añadidos; columnas creadas en Supabase). Expuestos en `/api/settings` (PUBLIC_FIELDS). Editables en `app/admin/settings/page.js` (tipo `logo` para imagen, `text` para título, `textarea` para descripción). Home (`app/page.js`) usa `settings.heroTitle || settings.hotelName || t('hero.heading')`, `settings.heroDescription || t('hero.body')`, y `settings.heroImage` como `backgroundImage` del hero (con overlay oscuro). El nombre del hotel (`hotelName`) es editable y se muestra en el hero por defecto (estilo "como antes").
 - Header home: para invitados muestra botón **"Crear Cuenta"** (`/register`, fondo `--primary`) + "Iniciar Sesión" (`/login`).
 - **Servicios Esenciales editables**: modelo `Service` (id, name, description, icon, image) + tabla creada en Supabase + 3 sembrados por defecto. API `/api/services` (GET lista, POST crea/edita) y `/api/services/[id]` (GET, DELETE). Admin `/admin/services` (interfaz estilo Habitaciones/Inventario: grid de tarjetas, modal crear/editar con nombre, icono emoji, descripción e imagen, y borrar). Home (`app/page.js`) renderiza los servicios dinámicamente desde `/api/services`. La nav del admin incluye "Servicios" en dashboard/rooms/bookings/settings.
+- **Panel de Analíticas** (`app/admin/analytics/page.js`, commit `a9e4623`): página client-side (sin backend nuevo) que hace fetch a `/api/bookings` y `/api/rooms` y calcula: KPIs (ingresos confirmados, valor medio por reserva, reservas confirmadas, tasa de cancelación, pagos pendientes), gráfico de barras de ingresos por mes (últimos 6, con CSS puro — NO hay librería de charts instalada), reservas por estado (barras de progreso) y habitaciones top por ingresos. i18n claves `admin.analytics*`/`admin.avgBooking`/`admin.cancelRate`/etc (ES/EN). Nav "📈 Analíticas" añadida en TODAS las páginas admin (dashboard/analytics/bookings/rooms/services/settings). Protegida por `proxy.js` (verificado 307 → `/login?redirect=%2Fadmin%2Fanalytics`).
 
 ## Work State
 ### Completed
@@ -34,6 +35,7 @@
     - Header home: botón **"Crear Cuenta"** (`/register`) para invitados + "Iniciar Sesión".
     - **Fix pago "atrás"**: `stripe-mock/page.js` tiene botón **"← Volver"** (Link a `/`); `app/api/checkout/route.js` `cancel_url` corregido de `/rooms/[id]` (ruta inexistente → 404) a `/?cancelled=true`.
     - **Servicios Esenciales editables (commit `8805066`)**: modelo `Service` + tabla Supabase + 3 sembrados; API `/api/services` y `/api/services/[id]`; admin `/admin/services` (estilo Inventario) con nav "Servicios" en todas las páginas admin; home renderiza servicios dinámicamente. Verificado `/api/services` devuelve los 3 servicios.
+    - **Panel de Analíticas (commit `a9e4623`)**: `/admin/analytics` con KPIs (ingresos confirmados, valor medio, reservas confirmadas, tasa cancelación, pagos pendientes), gráfico ingresos por mes (barras CSS), reservas por estado (barras progreso) y top habitaciones por ingresos. Nav "📈 Analíticas" en todas las páginas admin; i18n ES/EN. Protegida por proxy (verificado 307 → login).
 
 ### Active
 - (ninguno en curso)
@@ -42,10 +44,9 @@
 - (none)
 
 ## Next Move
-1. (Opcional, manual) Verificar en navegador que el `LanguageSwitcher` ES/EN cambia todo el texto en home y admin, y que la preferencia persiste tras recargar.
-2. (Opcional, manual) En el panel `/admin/settings` subir/probar imagen de hero, título y descripción, y confirmar que el home las refleja.
-3. (Opcional) Traducir textos restantes menores si se desea (p. ej. emails de confirmación en `lib/email.js` si existen, o placeholders).
-4. (Opcional) Siguiente fase sugerida: multi-hotel (un deploy por cliente) o panel de analytics.
+1. (Opcional, manual) Verificar en navegador: `LanguageSwitcher` ES/EN en home/admin, persistencia; subir hero en `/admin/settings`; CRUD servicios y panel Analytics con datos reales.
+2. (Opcional) Traducir textos restantes menores (emails de confirmación si existen, placeholders).
+3. (Opcional) Siguiente fase sugerida: multi-hotel (un repo + deploy + DB por cliente) o exportar datos (CSV).
 
 ## Relevant Files
 - `proxy.js`: protección `/admin` (sesión). Matcher solo `/admin`, `/admin/:path*`.
@@ -57,6 +58,7 @@
 - `app/page.js`: home traducida + JSON-LD (contiene el modal de reserva con `t('booking.pay')`).
 - `app/login/page.js`, `app/register/page.js`: traducidos.
 - `app/admin/page.js`, `app/admin/rooms/page.js`, `app/admin/bookings/page.js`, `app/admin/settings/page.js`: traducidos + `LanguageSwitcher`.
+- `app/admin/analytics/page.js`: nuevo panel de analíticas (KPIs + gráficos CSS).
 - `app/globals.css`: vars `--primary`/`--accent`.
 - `.gitignore`: excluye `run_sql.mjs`, `push_repo.mjs`, `.env*`.
 - `https://hotel-template-theta.vercel.app`: deploy real (verificado).
