@@ -194,7 +194,10 @@ export default function AdminRooms() {
             📅 Reservas
           </Link>
           <Link href="/admin/rooms" style={{ ...styles.navItem, ...styles.navItemActive }}>
-            🔑 Habitaciones / Inventario
+            🛏️ Habitaciones / Inventario
+          </Link>
+          <Link href="/admin/settings" style={styles.navItem}>
+            ⚙️ Configuración
           </Link>
         </nav>
 

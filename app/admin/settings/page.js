@@ -1,0 +1,375 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import AdminUserMenu from '@/components/AdminUserMenu';
+
+const PUBLIC_FIELDS = [
+  { key: 'hotelName', label: 'Nombre del Hotel', type: 'text', placeholder: 'Grand Oasis Resort & Spa' },
+  { key: 'hotelEmail', label: 'Email de Reservas', type: 'email', placeholder: 'reservas@hotel.com' },
+  { key: 'hotelPhone', label: 'Teléfono', type: 'text', placeholder: '+1 (555) 123-4567' },
+  { key: 'currency', label: 'Moneda (código ISO)', type: 'text', placeholder: 'USD' },
+  { key: 'hotelAddress', label: 'Dirección', type: 'textarea', placeholder: 'Calle, Ciudad, País' },
+];
+
+export default function AdminSettings() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    hotelName: '',
+    hotelEmail: '',
+    hotelPhone: '',
+    hotelAddress: '',
+    currency: 'USD',
+  });
+  const [message, setMessage] = useState(null); // { type: 'success' | 'error', text }
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  async function fetchSettings() {
+    try {
+      const res = await fetch('/api/settings');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'No se pudieron cargar los datos');
+      setForm((prev) => ({ ...prev, ...data }));
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleChange(key, value) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSaving(true);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al guardar');
+      setForm((prev) => ({ ...prev, ...data }));
+      setMessage({ type: 'success', text: 'Cambios guardados correctamente.' });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div style={styles.container}>
+      {/* SIDEBAR */}
+      <aside style={styles.sidebar}>
+        <Link href="/" style={styles.logoLink}>
+          <div className="logo">
+            GRAND<span>OASIS</span>
+          </div>
+          <span style={styles.logoSub}>Panel Admin</span>
+        </Link>
+
+        <nav style={styles.nav}>
+          <Link href="/admin" style={styles.navItem}>
+            📊 Dashboard
+          </Link>
+          <Link href="/admin/bookings" style={styles.navItem}>
+            📅 Reservas
+          </Link>
+          <Link href="/admin/rooms" style={styles.navItem}>
+            🛏️ Habitaciones / Inventario
+          </Link>
+          <Link
+            href="/admin/settings"
+            style={{ ...styles.navItem, ...styles.navItemActive }}
+          >
+            ⚙️ Configuración
+          </Link>
+        </nav>
+
+        <div style={styles.sidebarFooter}>
+          <Link href="/" style={styles.backLink}>
+            ← Volver a la Web Principal
+          </Link>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT */}
+      <main style={styles.main}>
+        <header style={styles.topBar}>
+          <div>
+            <h2 style={styles.title}>Configuración del Hotel</h2>
+            <p style={styles.subtitle}>
+              Edita la información y preferencias de tu propiedad.
+            </p>
+          </div>
+          <AdminUserMenu />
+        </header>
+
+        {loading ? (
+          <div style={styles.loadingContainer}>
+            <div style={styles.spinner}></div>
+            <p>Cargando información...</p>
+          </div>
+        ) : (
+          <div style={styles.content}>
+            <form style={styles.card} onSubmit={handleSubmit}>
+              <div style={styles.sectionHeader}>
+                <h3 style={styles.sectionTitle}>Información General</h3>
+                <p style={styles.sectionDesc}>
+                  Estos datos aparecen en la web pública y en los correos de confirmación.
+                </p>
+              </div>
+
+              {PUBLIC_FIELDS.map((field) => (
+                <div style={styles.formGroup} key={field.key}>
+                  <label style={styles.label} htmlFor={field.key}>
+                    {field.label}
+                  </label>
+                  {field.type === 'textarea' ? (
+                    <textarea
+                      id={field.key}
+                      style={{ ...styles.input, ...styles.textarea }}
+                      value={form[field.key] || ''}
+                      placeholder={field.placeholder}
+                      onChange={(e) => handleChange(field.key, e.target.value)}
+                    />
+                  ) : (
+                    <input
+                      id={field.key}
+                      type={field.type}
+                      style={styles.input}
+                      value={form[field.key] || ''}
+                      placeholder={field.placeholder}
+                      onChange={(e) => handleChange(field.key, e.target.value)}
+                    />
+                  )}
+                </div>
+              ))}
+
+              {message && (
+                <div
+                  style={
+                    message.type === 'success'
+                      ? styles.messageSuccess
+                      : styles.messageError
+                  }
+                >
+                  {message.text}
+                </div>
+              )}
+
+              <div style={styles.actions}>
+                <button type="submit" style={styles.saveBtn} disabled={saving}>
+                  {saving ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+const styles = {
+  container: {
+    display: 'flex',
+    minHeight: '100vh',
+    backgroundColor: '#faf9f6',
+    color: '#1a1a1a',
+  },
+  sidebar: {
+    width: '280px',
+    backgroundColor: '#ffffff',
+    borderRight: '1px solid var(--border-color)',
+    padding: '30px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'fixed',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    zIndex: 10,
+  },
+  logoLink: {
+    textDecoration: 'none',
+    marginBottom: '40px',
+    display: 'block',
+  },
+  logoSub: {
+    fontSize: '10px',
+    color: 'var(--accent)',
+    fontWeight: '700',
+    letterSpacing: '1.5px',
+    textTransform: 'uppercase',
+    marginTop: '4px',
+    display: 'block',
+  },
+  nav: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    flex: '1',
+  },
+  navItem: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '12px 16px',
+    borderRadius: 'var(--radius-sm)',
+    color: 'var(--text-secondary)',
+    textDecoration: 'none',
+    fontSize: '13px',
+    fontWeight: '500',
+    transition: 'var(--transition)',
+  },
+  navItemActive: {
+    backgroundColor: '#f5f2ed',
+    color: 'var(--primary)',
+    fontWeight: '600',
+  },
+  sidebarFooter: {
+    marginTop: 'auto',
+  },
+  backLink: {
+    color: 'var(--text-secondary)',
+    fontSize: '12px',
+    textDecoration: 'none',
+    transition: 'var(--transition)',
+    fontWeight: '500',
+  },
+  main: {
+    flex: '1',
+    marginLeft: '280px',
+    padding: '40px 60px',
+    minHeight: '100vh',
+  },
+  topBar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '40px',
+    borderBottom: '1px solid var(--border-color)',
+    paddingBottom: '24px',
+  },
+  title: {
+    fontFamily: 'Playfair Display, serif',
+    fontSize: '28px',
+    fontWeight: '500',
+  },
+  subtitle: {
+    fontSize: '13px',
+    color: 'var(--text-secondary)',
+    marginTop: '4px',
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '30px',
+  },
+  card: {
+    padding: '30px',
+    borderRadius: 'var(--radius-lg)',
+    backgroundColor: '#ffffff',
+    border: '1px solid var(--border-color)',
+    maxWidth: '640px',
+  },
+  sectionHeader: {
+    marginBottom: '24px',
+  },
+  sectionTitle: {
+    fontFamily: 'Playfair Display, serif',
+    fontSize: '18px',
+    fontWeight: '500',
+    marginBottom: '6px',
+  },
+  sectionDesc: {
+    fontSize: '13px',
+    color: 'var(--text-secondary)',
+    lineHeight: '1.5',
+  },
+  formGroup: {
+    marginBottom: '20px',
+  },
+  label: {
+    display: 'block',
+    fontSize: '12px',
+    fontWeight: '600',
+    color: 'var(--text-secondary)',
+    marginBottom: '8px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  },
+  input: {
+    width: '100%',
+    padding: '12px 14px',
+    borderRadius: 'var(--radius-sm)',
+    border: '1px solid var(--border-color)',
+    fontSize: '14px',
+    fontFamily: 'Inter, sans-serif',
+    color: '#1a1a1a',
+    backgroundColor: '#ffffff',
+    outline: 'none',
+    transition: 'var(--transition)',
+  },
+  textarea: {
+    minHeight: '90px',
+    resize: 'vertical',
+    fontFamily: 'Inter, sans-serif',
+  },
+  actions: {
+    marginTop: '8px',
+  },
+  saveBtn: {
+    backgroundColor: 'var(--primary)',
+    color: '#ffffff',
+    border: 'none',
+    padding: '13px 28px',
+    borderRadius: 'var(--radius-sm)',
+    fontSize: '13px',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    cursor: 'pointer',
+  },
+  messageSuccess: {
+    backgroundColor: '#e8f5e9',
+    color: '#2e7d32',
+    padding: '12px 16px',
+    borderRadius: 'var(--radius-sm)',
+    fontSize: '13px',
+    marginBottom: '8px',
+  },
+  messageError: {
+    backgroundColor: '#ffe5e5',
+    color: '#c62828',
+    padding: '12px 16px',
+    borderRadius: 'var(--radius-sm)',
+    fontSize: '13px',
+    marginBottom: '8px',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '100px 0',
+    gap: '20px',
+  },
+  spinner: {
+    width: '32px',
+    height: '32px',
+    border: '3px solid var(--border-color)',
+    borderTop: '3px solid var(--primary)',
+    borderRadius: '50%',
+    animation: 'spin 0.8s linear infinite',
+  },
+};

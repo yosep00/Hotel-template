@@ -98,7 +98,10 @@ export default function AdminBookings() {
             📅 Reservas
           </Link>
           <Link href="/admin/rooms" style={styles.navItem}>
-            🔑 Habitaciones / Inventario
+            🛏️ Habitaciones / Inventario
+          </Link>
+          <Link href="/admin/settings" style={styles.navItem}>
+            ⚙️ Configuración
           </Link>
         </nav>
 
