@@ -79,7 +79,7 @@ export default function Home() {
     try {
       const res = await fetch('/api/rooms');
       const data = await res.json();
-      setRooms(data);
+      setRooms(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (err) {
       console.error("Error al cargar habitaciones:", err);

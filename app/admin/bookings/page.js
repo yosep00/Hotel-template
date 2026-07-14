@@ -24,8 +24,8 @@ export default function AdminBookings() {
       const bookingsData = await bookingsRes.json();
       const roomsData = await roomsRes.json();
 
-      setBookings(bookingsData);
-      setRooms(roomsData);
+      setBookings(Array.isArray(bookingsData) ? bookingsData : []);
+      setRooms(Array.isArray(roomsData) ? roomsData : []);
       setLoading(false);
     } catch (err) {
       console.error("Error al cargar reservas:", err);
