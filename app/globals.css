@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  /* Warm Minimalist Light Palette (Nordic-Japanese Luxury / Kinfolk Style) */
+  --bg-base: #faf9f6;        /* Warm Off-White / Alabaster */
+  --bg-surface: #ffffff;     /* Pure White */
+  --bg-card: #ffffff;
+  --bg-card-hover: #fcfbfa;
+  --border-color: #e6e3df;   /* Soft warm grey border */
+  --border-color-hover: #cbc8c3;
+  
+  --primary: #1a1a1a;        /* Pure Charcoal / High contrast black */
+  --primary-hover: #404040;
+  --accent: #8e7d67;         /* Muted Bronze / Earthy Gold */
+  --accent-light: #f5f2ed;
+  
+  --text-primary: #1a1a1a;
+  --text-secondary: #5a5a5a;
+  --text-muted: #8c8c8c;
+  
+  --success: #2e7d32;        /* Elegant Forest Green */
+  --danger: #c62828;         /* Muted Brick Red */
+  
+  --radius-lg: 8px;          /* Minimalist clean corners (not too rounded) */
+  --radius-md: 6px;
+  --radius-sm: 4px;
+  
+  --transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Global Helpers */
+.animate-fade {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Minimalist Clean Box */
+.glass {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 30px rgba(26, 26, 26, 0.02);
+}
+
+/* Navigation Header */
+.header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  padding: 24px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(250, 249, 246, 0.95);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(8px);
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--primary);
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+.logo span {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.nav-links {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: var(--transition);
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary);
+}
+
+.btn-admin-header {
+  font-size: 12px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  text-decoration: none;
+  background: var(--bg-surface);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn-admin-header:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Inputs and Forms - CRITICAL FIXES FOR VISIBILITY & DROP-DOWNS */
+.input-field {
+  width: 100%;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary) !important;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.input-field:focus {
+  border-color: var(--primary);
+}
+
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+/* Custom styles for select and options to fix dark/light default rendering issues */
+select.input-field {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  cursor: pointer;
+  appearance: auto; /* Use browser native arrow to avoid overlay bugs */
+}
+
+select.input-field option {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  padding: 12px;
+}
+
+/* Custom styles for Date Pickers (Check-In / Check-Out) */
+input[type="date"].input-field {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  cursor: pointer;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--border-color);
+  padding: 80px 60px 40px 60px;
+  background-color: #f5f3f0;
+  margin-top: 120px;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 60px;
+  margin-bottom: 60px;
+}
+
+.footer-brand h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.footer-brand p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.footer-column h4 {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--primary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.footer-links {
+  list-style: none;
+}
+
+.footer-links li {
+  margin-bottom: 14px;
+}
+
+.footer-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  transition: var(--transition);
+}
+
+.footer-links a:hover {
+  color: var(--primary);
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-top: 1px solid var(--border-color);
+  padding-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+@media (max-width: 992px) {
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 20px 30px;
+  }
+  .nav-links {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+}
