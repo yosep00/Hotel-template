@@ -4,19 +4,22 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminUserMenu from '@/components/AdminUserMenu';
 import { BrandLogo } from '@/components/HotelBranding';
+import { useTranslation } from '@/components/LanguageProvider';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const PUBLIC_FIELDS = [
-  { key: 'hotelName', label: 'Nombre del Hotel', type: 'text', placeholder: 'Grand Oasis Resort & Spa' },
-  { key: 'hotelEmail', label: 'Email de Reservas', type: 'email', placeholder: 'reservas@hotel.com' },
-  { key: 'hotelPhone', label: 'Teléfono', type: 'text', placeholder: '+1 (555) 123-4567' },
-  { key: 'currency', label: 'Moneda (código ISO)', type: 'text', placeholder: 'USD' },
-  { key: 'hotelAddress', label: 'Dirección', type: 'textarea', placeholder: 'Calle, Ciudad, País' },
-  { key: 'logoUrl', label: 'Logo del Hotel', type: 'logo' },
-  { key: 'primaryColor', label: 'Color Primario (botones, títulos)', type: 'color' },
-  { key: 'accentColor', label: 'Color de Acento', type: 'color' },
+  { key: 'hotelName', label: 'admin.fHotelName', type: 'text', placeholder: 'Grand Oasis Resort & Spa' },
+  { key: 'hotelEmail', label: 'admin.fHotelEmail', type: 'email', placeholder: 'reservas@hotel.com' },
+  { key: 'hotelPhone', label: 'admin.fHotelPhone', type: 'text', placeholder: '+1 (555) 123-4567' },
+  { key: 'currency', label: 'admin.fCurrency', type: 'text', placeholder: 'USD' },
+  { key: 'hotelAddress', label: 'admin.fHotelAddress', type: 'textarea', placeholder: 'Calle, Ciudad, País' },
+  { key: 'logoUrl', label: 'admin.fLogo', type: 'logo' },
+  { key: 'primaryColor', label: 'admin.fPrimary', type: 'color' },
+  { key: 'accentColor', label: 'admin.fAccent', type: 'color' },
 ];
 
 export default function AdminSettings() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
@@ -73,7 +76,7 @@ export default function AdminSettings() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al guardar');
       setForm((prev) => ({ ...prev, ...data }));
-      setMessage({ type: 'success', text: 'Cambios guardados correctamente.' });
+      setMessage({ type: 'success', text: t('common.success') });
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
     } finally {
@@ -87,30 +90,30 @@ export default function AdminSettings() {
       <aside style={styles.sidebar}>
         <Link href="/" style={styles.logoLink}>
           <BrandLogo />
-          <span style={styles.logoSub}>Panel Admin</span>
+          <span style={styles.logoSub}>{t('nav.admin')}</span>
         </Link>
 
         <nav style={styles.nav}>
           <Link href="/admin" style={styles.navItem}>
-            📊 Dashboard
+            📊 {t('admin.dashboard')}
           </Link>
           <Link href="/admin/bookings" style={styles.navItem}>
-            📅 Reservas
+            📅 {t('admin.bookings')}
           </Link>
           <Link href="/admin/rooms" style={styles.navItem}>
-            🛏️ Habitaciones / Inventario
+            🛏️ {t('admin.rooms')}
           </Link>
           <Link
             href="/admin/settings"
             style={{ ...styles.navItem, ...styles.navItemActive }}
           >
-            ⚙️ Configuración
+            ⚙️ {t('admin.settings')}
           </Link>
         </nav>
 
         <div style={styles.sidebarFooter}>
           <Link href="/" style={styles.backLink}>
-            ← Volver a la Web Principal
+            ← {t('nav.backToSite')}
           </Link>
         </div>
       </aside>
@@ -119,34 +122,37 @@ export default function AdminSettings() {
       <main style={styles.main}>
         <header style={styles.topBar}>
           <div>
-            <h2 style={styles.title}>Configuración del Hotel</h2>
+            <h2 style={styles.title}>{t('admin.settingsTitle')}</h2>
             <p style={styles.subtitle}>
-              Edita la información y preferencias de tu propiedad.
+              {t('admin.settingsSub')}
             </p>
           </div>
-          <AdminUserMenu />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <LanguageSwitcher />
+            <AdminUserMenu />
+          </div>
         </header>
 
         {loading ? (
-          <div style={styles.loadingContainer}>
-            <div style={styles.spinner}></div>
-            <p>Cargando información...</p>
-          </div>
-        ) : (
-          <div style={styles.content}>
-            <form style={styles.card} onSubmit={handleSubmit}>
-              <div style={styles.sectionHeader}>
-                <h3 style={styles.sectionTitle}>Información General</h3>
-                <p style={styles.sectionDesc}>
-                  Estos datos aparecen en la web pública y en los correos de confirmación.
-                </p>
-              </div>
+            <div style={styles.loadingContainer}>
+              <div style={styles.spinner}></div>
+              <p>{t('common.loading')}</p>
+            </div>
+          ) : (
+            <div style={styles.content}>
+              <form style={styles.card} onSubmit={handleSubmit}>
+                <div style={styles.sectionHeader}>
+                  <h3 style={styles.sectionTitle}>{t('admin.generalInfo')}</h3>
+                  <p style={styles.sectionDesc}>
+                    {t('admin.generalDesc')}
+                  </p>
+                </div>
 
-              {PUBLIC_FIELDS.map((field) => (
-                <div style={styles.formGroup} key={field.key}>
-                  <label style={styles.label} htmlFor={field.key}>
-                    {field.label}
-                  </label>
+                {PUBLIC_FIELDS.map((field) => (
+                  <div style={styles.formGroup} key={field.key}>
+                    <label style={styles.label} htmlFor={field.key}>
+                      {t(field.label)}
+                    </label>
 
                   {field.type === 'textarea' ? (
                     <textarea
@@ -196,7 +202,7 @@ export default function AdminSettings() {
                         onChange={(e) => handleChange('logoUrl', e.target.value)}
                       />
                       <p style={styles.hint}>
-                        Sube una imagen (se guarda embebida en la base de datos) o pega una URL.
+                        {t('admin.logoHint')}
                       </p>
                     </div>
                   ) : (
@@ -226,7 +232,7 @@ export default function AdminSettings() {
 
               <div style={styles.actions}>
                 <button type="submit" style={styles.saveBtn} disabled={saving}>
-                  {saving ? 'Guardando...' : 'Guardar Cambios'}
+                  {saving ? t('admin.saving') : t('common.save')}
                 </button>
               </div>
             </form>

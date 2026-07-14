@@ -3,10 +3,14 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BrandLogo, BrandName } from '@/components/HotelBranding';
+import { BrandLogo, BrandName, useHotelSettings } from '@/components/HotelBranding';
+import { useTranslation } from '@/components/LanguageProvider';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function Home() {
   const router = useRouter();
+  const { t } = useTranslation();
+  const settings = useHotelSettings() || {};
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [checkIn, setCheckIn] = useState('');
@@ -200,16 +204,17 @@ export default function Home() {
         </Link>
         <nav>
           <ul className="nav-links">
-            <li><a href="#hero" className="nav-link">Inicio</a></li>
-            <li><a href="#rooms-section" className="nav-link">Habitaciones</a></li>
-            <li><a href="#services" className="nav-link">Servicios</a></li>
-            <li><a href="#contact" className="nav-link">Contacto</a></li>
+            <li><a href="#hero" className="nav-link">{t('nav.home')}</a></li>
+            <li><a href="#rooms-section" className="nav-link">{t('nav.rooms')}</a></li>
+            <li><a href="#services" className="nav-link">{t('nav.services')}</a></li>
+            <li><a href="#contact" className="nav-link">{t('nav.contact')}</a></li>
           </ul>
         </nav>
         <div style={{ position: 'relative', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <LanguageSwitcher style={{ color: '#fff' }} />
           {isAdmin && (
             <Link href="/admin" className="btn-admin-header">
-              🔧 Panel Admin (Ver Reservas)
+              🔧 {t('nav.admin')}
             </Link>
           )}
 
@@ -296,21 +301,21 @@ export default function Home() {
                     onClick={() => setUserMenuOpen(false)}
                     style={userMenuItemStyle}
                   >
-                    🏠 Inicio
+                    {t('nav.home')}
                   </Link>
                   <button
                     type="button"
                     onClick={handleLogout}
                     style={{ ...userMenuItemStyle, width: '100%', textAlign: 'left', border: 'none', background: 'none' }}
                   >
-                    🚪 Cerrar sesión
+                    {t('nav.logout')}
                   </button>
                 </div>
               )}
             </div>
           ) : (
             <Link href="/login" className="btn-admin-header" style={{ textDecoration: 'none' }}>
-              Iniciar Sesión
+              {t('nav.login')}
             </Link>
           )}
         </div>
@@ -319,19 +324,19 @@ export default function Home() {
       {/* HERO SECTION */}
       <section id="hero" style={styles.hero}>
         <div style={styles.heroContent} className="animate-slide">
-          <span style={styles.heroSubtitle}>ESTADÍAS DE DISEÑO EXCLUSIVO</span>
-          <h1 style={styles.heroTitle}>Simplicidad, Naturaleza y Silencio</h1>
+          <span style={styles.heroSubtitle}>{t('hero.kicker')}</span>
+          <h1 style={styles.heroTitle}>{t('hero.heading')}</h1>
           <p style={styles.heroDescription}>
-            Villas independientes y suites de diseño minimalista integradas con el entorno. Un refugio pensado para desconectar del ruido exterior.
+            {t('hero.body')}
           </p>
-          <a href="#rooms-section" style={styles.heroBtn}>Ver Habitaciones</a>
+          <a href="#rooms-section" style={styles.heroBtn}>{t('hero.viewRooms')}</a>
         </div>
 
         {/* BOOKING BAR */}
         <div style={styles.searchBarWrapper}>
           <form onSubmit={handleSearch} style={styles.searchForm}>
             <div style={styles.searchGroup}>
-              <label style={styles.searchLabel}>Entrada</label>
+              <label style={styles.searchLabel}>{t('search.checkIn')}</label>
               <input 
                 type="date" 
                 value={checkIn} 
@@ -344,7 +349,7 @@ export default function Home() {
             </div>
             
             <div style={styles.searchGroup}>
-              <label style={styles.searchLabel}>Salida</label>
+              <label style={styles.searchLabel}>{t('search.checkOut')}</label>
               <input 
                 type="date" 
                 value={checkOut} 
@@ -357,21 +362,21 @@ export default function Home() {
             </div>
 
             <div style={styles.searchGroup}>
-              <label style={styles.searchLabel}>Huéspedes</label>
+              <label style={styles.searchLabel}>{t('search.guests')}</label>
               <select 
                 value={guests} 
                 onChange={(e) => setGuests(parseInt(e.target.value))}
                 className="input-field"
                 style={styles.searchInputCustom}
               >
-                <option value={1}>1 Huésped</option>
-                <option value={2}>2 Huéspedes</option>
-                <option value={3}>3 Huéspedes</option>
-                <option value={4}>4+ Huéspedes</option>
+                <option value={1}>1 {t('search.guest')}</option>
+                <option value={2}>2 {t('search.guests')}</option>
+                <option value={3}>3 {t('search.guests')}</option>
+                <option value={4}>4+ {t('search.guests')}</option>
               </select>
             </div>
             
-            <button type="submit" style={styles.searchBtn}>Buscar Disponibilidad</button>
+            <button type="submit" style={styles.searchBtn}>{t('search.search')}</button>
           </form>
         </div>
       </section>
@@ -379,12 +384,12 @@ export default function Home() {
       {/* ROOMS SECTION */}
       <section id="rooms-section" style={styles.section}>
         <div style={styles.sectionHeader}>
-          <span style={styles.sectionSubtitle}>NUESTROS ESPACIOS</span>
-          <h2 style={styles.sectionTitle}>Habitaciones Disponibles</h2>
+          <span style={styles.sectionSubtitle}>{t('rooms.kicker')}</span>
+          <h2 style={styles.sectionTitle}>{t('rooms.title')}</h2>
           <div style={styles.underline}></div>
           {searchTriggered && (
             <p style={styles.searchAlert}>
-              Resultados para estadía del <strong>{checkIn}</strong> al <strong>{checkOut}</strong>:
+              {t('search.results')} <strong>{checkIn}</strong> {t('search.to')} <strong>{checkOut}</strong>:
             </p>
           )}
         </div>
@@ -409,9 +414,9 @@ export default function Home() {
                       alt={room.name} 
                       style={styles.roomImg} 
                     />
-                    <div style={styles.roomPriceBadge}>
-                      ${room.basePrice.toFixed(2)} <span>/ noche</span>
-                    </div>
+                      <div style={styles.roomPriceBadge}>
+                        ${room.basePrice.toFixed(2)} <span>{t('rooms.perNight')}</span>
+                      </div>
                   </div>
 
                   <div style={styles.roomInfo}>
@@ -419,7 +424,7 @@ export default function Home() {
                     <p style={styles.roomDesc}>{room.description}</p>
                     
                     <div style={styles.roomDetailsRow}>
-                      <span>Capacidad: {room.capacityAdults} ad. + {room.capacityChildren} niñ.</span>
+                      <span>{t('rooms.capacity')} {room.capacityAdults} ad. + {room.capacityChildren} niñ.</span>
                     </div>
 
                     <div style={styles.amenitiesList}>
@@ -445,16 +450,16 @@ export default function Home() {
                       {searchTriggered ? (
                         remaining > 0 ? (
                           <div style={{ ...styles.stockLabel, color: remaining <= 2 ? 'var(--danger)' : 'var(--success)' }}>
-                            {remaining === 1 ? '⚠️ ¡Última habitación disponible!' : `✓ Quedan ${remaining} habitaciones disponibles`}
+                            {remaining === 1 ? t('rooms.lastOne') : t('rooms.remaining').replace('{n}', remaining)}
                           </div>
                         ) : (
                           <div style={{ ...styles.stockLabel, color: 'var(--danger)' }}>
-                            ✕ Agotado para estas fechas
+                            {t('rooms.soldOut')}
                           </div>
                         )
                       ) : (
                         <div style={styles.stockLabelMuted}>
-                          Disponibilidad base: {room.stock} habitaciones
+                          {t('rooms.baseAvail')} {room.stock} {t('rooms.roomsUnit')}
                         </div>
                       )}
                     </div>
@@ -465,14 +470,14 @@ export default function Home() {
                           onClick={() => handleOpenBookingModal(room)}
                           style={styles.bookBtn}
                         >
-                          Reservar Habitación
+                          {t('rooms.book')}
                         </button>
                       ) : (
                         <button 
                           disabled 
                           style={styles.soldOutBtn}
                         >
-                          No disponible
+                          {t('rooms.unavailable')}
                         </button>
                       )}
                     </div>
@@ -487,26 +492,26 @@ export default function Home() {
       {/* SERVICES SECTION */}
       <section id="services" style={styles.darkSection}>
         <div style={styles.sectionHeader}>
-          <span style={styles.sectionSubtitle}>CONFORT Y SERVICIO</span>
-          <h2 style={styles.sectionTitle}>Servicios Esenciales</h2>
+          <span style={styles.sectionSubtitle}>{t('services.kicker')}</span>
+          <h2 style={styles.sectionTitle}>{t('services.title')}</h2>
           <div style={styles.underline}></div>
         </div>
 
         <div style={styles.servicesGrid}>
           <div style={styles.serviceCard} className="glass">
             <span style={styles.serviceIcon}>☕</span>
-            <h3>Desayuno Artesanal</h3>
-            <p>Ingredientes locales y frescos preparados a la carta cada mañana en nuestro huerto orgánico.</p>
+            <h3>{t('services.breakfastT')}</h3>
+            <p>{t('services.breakfastD')}</p>
           </div>
           <div style={styles.serviceCard} className="glass">
             <span style={styles.serviceIcon}>🧘</span>
-            <h3>Zonas de Meditación</h3>
-            <p>Espacios silenciosos integrados en la naturaleza para yoga, lectura y descanso mental profundo.</p>
+            <h3>{t('services.meditationT')}</h3>
+            <p>{t('services.meditationD')}</p>
           </div>
           <div style={styles.serviceCard} className="glass">
             <span style={styles.serviceIcon}>🚲</span>
-            <h3>Bicicletas de Cortesía</h3>
-            <p>Explora los alrededores rurales, senderos forestales o playas cercanas sin costo adicional.</p>
+            <h3>{t('services.bikesT')}</h3>
+            <p>{t('services.bikesD')}</p>
           </div>
         </div>
       </section>
@@ -514,8 +519,8 @@ export default function Home() {
       {/* CONTACT SECTION */}
       <section id="contact" style={styles.section}>
         <div style={styles.sectionHeader}>
-          <span style={styles.sectionSubtitle}>CONTACTO</span>
-          <h2 style={styles.sectionTitle}>Ubicación del Refugio</h2>
+          <span style={styles.sectionSubtitle}>{t('nav.contact')}</span>
+          <h2 style={styles.sectionTitle}>{t('contact.title')}</h2>
           <div style={styles.underline}></div>
         </div>
 
@@ -523,7 +528,7 @@ export default function Home() {
           <div style={styles.contactInfoCard}>
             <h3><BrandName /></h3>
             <p style={styles.contactText}>📍 Km 14.5, Boulevard Kukulcan, Zona Hotelera, Cancún</p>
-            <p style={styles.contactText}>📞 Teléfono: +1 (555) 123-4567</p>
+            <p style={styles.contactText}>📞 {t('contact.phone')}: +1 (555) 123-4567</p>
             <p style={styles.contactText}>✉️ Email: reservas@grandoasisresort.com</p>
             <div style={styles.mapMock}>
               <span>Mapa de Google</span>
@@ -531,10 +536,10 @@ export default function Home() {
           </div>
 
           <form style={styles.contactForm}>
-            <input type="text" placeholder="Tu Nombre" required className="input-field" style={styles.contactInput} />
-            <input type="email" placeholder="Tu Correo" required className="input-field" style={styles.contactInput} />
-            <textarea placeholder="¿Qué necesitas?" rows={3} required className="input-field" style={styles.contactTextarea}></textarea>
-            <button type="submit" style={styles.heroBtn}>Enviar Mensaje</button>
+            <input type="text" placeholder={t('contact.name')} required className="input-field" style={styles.contactInput} />
+            <input type="email" placeholder={t('contact.email')} required className="input-field" style={styles.contactInput} />
+            <textarea placeholder={t('contact.message')} rows={3} required className="input-field" style={styles.contactTextarea}></textarea>
+            <button type="submit" style={styles.heroBtn}>{t('contact.send')}</button>
           </form>
         </div>
       </section>
@@ -544,47 +549,65 @@ export default function Home() {
         <div className="footer-content">
           <div className="footer-brand">
             <h3><BrandName /></h3>
-            <p>Un concepto hotelero simplificado. Enfocado en la arquitectura honesta, el descanso absoluto y el servicio directo.</p>
+            <p>{t('footer.about')}</p>
           </div>
           <div className="footer-column">
-            <h4>Navegación</h4>
+            <h4>{t('footer.navigation')}</h4>
             <ul className="footer-links">
-              <li><a href="#hero">Inicio</a></li>
-              <li><a href="#rooms-section">Habitaciones</a></li>
-              <li><a href="#services">Servicios</a></li>
-              <li><a href="#contact">Contacto</a></li>
+              <li><a href="#hero">{t('nav.home')}</a></li>
+              <li><a href="#rooms-section">{t('nav.rooms')}</a></li>
+              <li><a href="#services">{t('nav.services')}</a></li>
+              <li><a href="#contact">{t('nav.contact')}</a></li>
             </ul>
           </div>
           <div className="footer-column">
-            <h4>Administración</h4>
+            <h4>{t('footer.admin')}</h4>
             <ul className="footer-links">
               {isAdmin && (
                 <li>
                   <Link href="/admin" style={{ fontWeight: '600', color: 'var(--primary)' }}>
-                    🔧 Ver Reservas Hechas (Panel Admin)
+                    🔧 {t('footer.reservations')}
                   </Link>
                 </li>
               )}
-              <li><a href="#">Políticas de Cancelación</a></li>
+              <li><a href="#">{t('footer.policies')}</a></li>
             </ul>
           </div>
           <div className="footer-column">
-            <h4>Contacto</h4>
+            <h4>{t('footer.contact')}</h4>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>reservas@grandoasisresort.com<br />+1 (555) 123-4567</p>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>© 2026 <BrandName />. Creado como plantilla de hotel minimalista moderna.</p>
-          <p>Términos | Privacidad</p>
+          <p>© 2026 <BrandName />. {t('footer.tagline')}</p>
+          <p>{t('footer.terms')}</p>
         </div>
       </footer>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Hotel',
+            name: settings.hotelName || 'Hotel',
+            description: t('hero.body'),
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: settings.hotelAddress || '',
+              addressCountry: 'MX',
+            },
+            url: 'https://hotel-template-theta.vercel.app',
+          }),
+        }}
+      />
 
       {/* BOOKING MODAL */}
       {selectedRoom && (
         <div style={styles.modalOverlay}>
           <div style={styles.modalContent} className="glass">
             <div style={styles.modalHeader}>
-              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '22px' }}>Datos del Huésped</h3>
+              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '22px' }}>{t('booking.guestData')}</h3>
               <button onClick={handleCloseBookingModal} style={styles.closeBtn}>×</button>
             </div>
             
@@ -593,16 +616,16 @@ export default function Home() {
                 <div>
                   <h4 style={{ fontSize: '15px', fontWeight: '700' }}>{selectedRoom.name}</h4>
                   <p style={{ color: 'var(--accent)', fontWeight: '600', fontSize: '14px', marginTop: '4px' }}>
-                    ${selectedRoom.basePrice.toFixed(2)} USD / noche
+                    ${selectedRoom.basePrice.toFixed(2)} USD / {t('rooms.perNight')}
                   </p>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                    Estadía: <strong>{checkIn}</strong> al <strong>{checkOut}</strong>
+                    {t('booking.stay')}: <strong>{checkIn}</strong> {t('search.to')} <strong>{checkOut}</strong>
                   </p>
                 </div>
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.modalLabel}>Nombre Completo</label>
+                <label style={styles.modalLabel}>{t('auth.name')}</label>
                 <input 
                   type="text" 
                   value={guestName} 
@@ -614,7 +637,7 @@ export default function Home() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.modalLabel}>Correo Electrónico</label>
+                <label style={styles.modalLabel}>{t('auth.email')}</label>
                 <input 
                   type="email" 
                   value={guestEmail} 
@@ -626,7 +649,7 @@ export default function Home() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.modalLabel}>Teléfono</label>
+                <label style={styles.modalLabel}>{t('contact.phone')}</label>
                 <input 
                   type="tel" 
                   value={guestPhone} 
@@ -641,7 +664,7 @@ export default function Home() {
                 {bookingLoading ? (
                   <div style={styles.modalBtnSpinner}></div>
                 ) : (
-                  "Proceder al Pago Seguro"
+                  t('booking.pay')
                 )}
               </button>
             </form>

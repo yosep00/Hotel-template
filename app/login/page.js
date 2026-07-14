@@ -4,11 +4,14 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { BrandLogo } from '@/components/HotelBranding';
+import { useTranslation } from '@/components/LanguageProvider';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get('redirect') || '/';
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -67,14 +70,18 @@ function LoginContent() {
           <BrandLogo />
         </Link>
 
-        <h2 style={styles.title}>Iniciar Sesión</h2>
-        <p style={styles.subtitle}>Ingresa tus credenciales para acceder a tu cuenta.</p>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+          <LanguageSwitcher />
+        </div>
+
+        <h2 style={styles.title}>{t('auth.loginTitle')}</h2>
+        <p style={styles.subtitle}>{t('auth.loginSub')}</p>
 
         {error && <div style={styles.errorAlert}>{error}</div>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Correo Electrónico</label>
+            <label style={styles.label}>{t('auth.email')}</label>
             <input
               type="email"
               value={email}
@@ -86,7 +93,7 @@ function LoginContent() {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Contraseña</label>
+            <label style={styles.label}>{t('auth.password')}</label>
             <input
               type="password"
               value={password}
@@ -98,19 +105,19 @@ function LoginContent() {
           </div>
 
           <button type="submit" disabled={loading} style={styles.submitBtn}>
-            {loading ? <div style={styles.spinner}></div> : "Ingresar"}
+            {loading ? <div style={styles.spinner}></div> : t('auth.submit')}
           </button>
         </form>
 
         <div style={styles.divider}></div>
 
         <p style={styles.footerText}>
-          ¿No tienes una cuenta de cliente? <Link href="/register" style={styles.link}>Regístrate aquí</Link>
+          {t('auth.noAccount')} <Link href="/register" style={styles.link}>{t('auth.register')}</Link>
         </p>
 
         <div style={styles.demoCredentials}>
-          <p style={{ fontWeight: '700', marginBottom: '4px' }}>🔑 Cuentas de demostración:</p>
-          <p>• <strong>Administrador del Hotel:</strong> admin@grandoasis.com / admin123</p>
+          <p style={{ fontWeight: '700', marginBottom: '4px' }}>{t('auth.demo')}</p>
+          <p>• <strong>{t('auth.adminLogin')}:</strong> admin@grandoasis.com / admin123</p>
         </div>
       </div>
     </div>

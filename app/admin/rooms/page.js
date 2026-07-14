@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminUserMenu from '@/components/AdminUserMenu';
 import { BrandLogo } from '@/components/HotelBranding';
+import { useTranslation } from '@/components/LanguageProvider';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function AdminRooms() {
+  const { t } = useTranslation();
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,16 +30,16 @@ export default function AdminRooms() {
   const MAX_IMAGE_SIZE = 3 * 1024 * 1024; // 3 MB por archivo
 
   const availableAmenities = [
-    { id: 'wifi', label: '📶 Wi-Fi' },
-    { id: 'ac', label: '❄️ Aire Acondicionado' },
-    { id: 'tv', label: '📺 Smart TV' },
-    { id: 'pool', label: '🏊 Piscina' },
-    { id: 'jacuzzi', label: '🛁 Jacuzzi' },
-    { id: 'breakfast', label: '🍳 Desayuno Incluido' },
-    { id: 'minibar', label: '🍷 Minibar' },
-    { id: 'kitchen', label: '🍳 Cocina Equipada' },
-    { id: 'ocean_view', label: '🌊 Vista al Mar' },
-    { id: 'parking', label: '🚗 Estacionamiento' }
+    { id: 'wifi', label: t('amenity.wifi') },
+    { id: 'ac', label: t('amenity.ac') },
+    { id: 'tv', label: t('amenity.tv') },
+    { id: 'pool', label: t('amenity.pool') },
+    { id: 'jacuzzi', label: t('amenity.jacuzzi') },
+    { id: 'breakfast', label: t('amenity.breakfast') },
+    { id: 'minibar', label: t('amenity.minibar') },
+    { id: 'kitchen', label: t('amenity.kitchen') },
+    { id: 'ocean_view', label: t('amenity.ocean_view') },
+    { id: 'parking', label: t('amenity.parking') }
   ];
 
   useEffect(() => {
@@ -95,11 +98,11 @@ export default function AdminRooms() {
     const files = Array.from(e.target.files || []);
     files.forEach((file) => {
       if (!file.type.startsWith('image/')) {
-        alert('Solo se permiten archivos de imagen (JPG, PNG, WebP).');
+        alert(t('admin.imageOnly'));
         return;
       }
       if (file.size > MAX_IMAGE_SIZE) {
-        alert(`La imagen "${file.name}" supera el tamaño máximo recomendado de 3 MB.`);
+        alert(t('admin.imageTooLarge').replace('{name}', file.name));
         return;
       }
       const reader = new FileReader();
@@ -152,7 +155,7 @@ export default function AdminRooms() {
         body: JSON.stringify(roomPayload)
       });
 
-      if (!res.ok) throw new Error("No se pudo guardar la habitación");
+      if (!res.ok) throw new Error(t('admin.saveError'));
 
       setIsModalOpen(false);
       fetchRooms();
@@ -162,14 +165,14 @@ export default function AdminRooms() {
   };
 
   const handleDeleteRoom = async (roomId) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar esta habitación? Se cancelarán y eliminarán también todas sus reservas asociadas.")) return;
+    if (!confirm(t('admin.deleteConfirm'))) return;
 
     try {
       const res = await fetch(`/api/rooms/${roomId}`, {
         method: 'DELETE'
       });
 
-      if (!res.ok) throw new Error("No se pudo eliminar la habitación");
+      if (!res.ok) throw new Error(t('admin.deleteError'));
       fetchRooms();
     } catch (err) {
       alert("Error: " + err.message);
@@ -182,27 +185,27 @@ export default function AdminRooms() {
       <aside style={styles.sidebar}>
         <Link href="/" style={styles.logoLink}>
           <BrandLogo />
-          <span style={styles.logoSub}>Panel Admin</span>
+          <span style={styles.logoSub}>{t('nav.admin')}</span>
         </Link>
-        
+
         <nav style={styles.nav}>
           <Link href="/admin" style={styles.navItem}>
-            📊 Dashboard
+            📊 {t('admin.dashboard')}
           </Link>
           <Link href="/admin/bookings" style={styles.navItem}>
-            📅 Reservas
+            📅 {t('admin.bookings')}
           </Link>
           <Link href="/admin/rooms" style={{ ...styles.navItem, ...styles.navItemActive }}>
-            🛏️ Habitaciones / Inventario
+            🛏️ {t('admin.rooms')}
           </Link>
           <Link href="/admin/settings" style={styles.navItem}>
-            ⚙️ Configuración
+            ⚙️ {t('admin.settings')}
           </Link>
         </nav>
 
         <div style={styles.sidebarFooter}>
           <Link href="/" style={styles.backLink}>
-            ← Volver a la Web Principal
+            ← {t('nav.backToSite')}
           </Link>
         </div>
       </aside>
@@ -212,22 +215,23 @@ export default function AdminRooms() {
         {/* TOP BAR */}
         <header style={styles.topBar}>
           <div>
-            <h2 style={styles.title}>Inventario del Hotel</h2>
-            <p style={styles.subtitle}>Crea, edita o elimina tipos de habitación y ajusta el stock disponible.</p>
+            <h2 style={styles.title}>{t('admin.roomsTitle')}</h2>
+            <p style={styles.subtitle}>{t('admin.roomsSub')}</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button onClick={handleOpenCreateModal} style={styles.createBtn}>
-              + Agregar Habitación
+              {t('admin.addRoom')}
             </button>
+            <LanguageSwitcher />
             <AdminUserMenu />
           </div>
         </header>
 
         {loading ? (
-          <div style={styles.loadingContainer}>
-            <div style={styles.spinner}></div>
-            <p>Cargando habitaciones...</p>
-          </div>
+            <div style={styles.loadingContainer}>
+              <div style={styles.spinner}></div>
+              <p>{t('common.loading')}</p>
+            </div>
         ) : (
           <div style={styles.roomsGrid}>
             {rooms.map(room => (
@@ -242,8 +246,8 @@ export default function AdminRooms() {
                   <p style={styles.roomDesc}>{room.description}</p>
                   
                   <div style={styles.metaInfo}>
-                    <span>Capacidad: {room.capacityAdults} ad. + {room.capacityChildren} niñ.</span>
-                    <span>Stock Base: <strong>{room.stock}</strong></span>
+                    <span>{t('admin.capacityLabel')} {room.capacityAdults} ad. + {room.capacityChildren} niñ.</span>
+                    <span>{t('admin.baseStock')} <strong>{room.stock}</strong></span>
                   </div>
 
                   <div style={styles.amenities}>
@@ -259,13 +263,13 @@ export default function AdminRooms() {
                       onClick={() => handleOpenEditModal(room)} 
                       style={styles.editBtn}
                     >
-                      ✏️ Editar
+                      ✏️ {t('admin.edit')}
                     </button>
                     <button 
                       onClick={() => handleDeleteRoom(room.id)} 
                       style={styles.deleteBtn}
                     >
-                      🗑️ Eliminar
+                      🗑️ {t('admin.delete')}
                     </button>
                   </div>
                 </div>
@@ -281,14 +285,14 @@ export default function AdminRooms() {
           <div style={styles.modalContent} className="glass">
             <div style={styles.modalHeader}>
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '20px' }}>
-                {editingRoom ? "Editar Habitación" : "Nueva Habitación"}
+                {editingRoom ? t('admin.editRoom') : t('admin.newRoom')}
               </h3>
               <button onClick={() => setIsModalOpen(false)} style={styles.closeBtn}>×</button>
             </div>
 
             <form onSubmit={handleSubmit} style={styles.form}>
               <div style={styles.formGroup}>
-                <label style={styles.label}>Nombre de la Habitación</label>
+                <label style={styles.label}>{t('admin.roomName')}</label>
                 <input 
                   type="text" 
                   value={name} 
@@ -300,7 +304,7 @@ export default function AdminRooms() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Descripción</label>
+                <label style={styles.label}>{t('admin.description')}</label>
                 <textarea 
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)} 
@@ -314,7 +318,7 @@ export default function AdminRooms() {
 
               <div style={styles.formRow}>
                 <div style={{ ...styles.formGroup, flex: '1' }}>
-                  <label style={styles.label}>Precio por Noche (USD)</label>
+                  <label style={styles.label}>{t('admin.priceNight')}</label>
                   <input 
                     type="number" 
                     step="0.01"
@@ -326,7 +330,7 @@ export default function AdminRooms() {
                   />
                 </div>
                 <div style={{ ...styles.formGroup, flex: '1' }}>
-                  <label style={styles.label}>Stock Físico (Cantidad)</label>
+                  <label style={styles.label}>{t('admin.stockPhysical')}</label>
                   <input 
                     type="number" 
                     value={stock} 
@@ -340,7 +344,7 @@ export default function AdminRooms() {
 
               <div style={styles.formRow}>
                 <div style={{ ...styles.formGroup, flex: '1' }}>
-                  <label style={styles.label}>Capacidad Adultos</label>
+                  <label style={styles.label}>{t('admin.capacityAdults')}</label>
                   <input 
                     type="number" 
                     value={capacityAdults} 
@@ -350,7 +354,7 @@ export default function AdminRooms() {
                   />
                 </div>
                 <div style={{ ...styles.formGroup, flex: '1' }}>
-                  <label style={styles.label}>Capacidad Niños</label>
+                  <label style={styles.label}>{t('admin.capacityChildren')}</label>
                   <input 
                     type="number" 
                     value={capacityChildren} 
@@ -362,9 +366,9 @@ export default function AdminRooms() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Imágenes de la Habitación</label>
+                <label style={styles.label}>{t('admin.roomImages')}</label>
                 <p style={{ margin: '0 0 8px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                  Sube imágenes desde tu dispositivo. Tamaño recomendado: <strong>800 × 600 px</strong> (mínimo 600 × 400). Formatos JPG, PNG o WebP. Máximo 3 MB por archivo.
+                  {t('admin.imageHelp')}
                 </p>
                 <input
                   type="file"
@@ -416,7 +420,7 @@ export default function AdminRooms() {
                 )}
 
                 <label style={{ ...styles.label, marginTop: '16px' }}>
-                  O pega URLs de fotos (separadas por comas)
+                  {t('admin.pasteUrl')}
                 </label>
                 <input
                   type="text"
@@ -428,7 +432,7 @@ export default function AdminRooms() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Servicios / Comodidades</label>
+                <label style={styles.label}>{t('admin.amenitiesLabel')}</label>
                 <div style={styles.amenitiesChecklist}>
                   {availableAmenities.map(amenity => (
                     <label key={amenity.id} style={styles.checkboxLabel}>
@@ -445,7 +449,7 @@ export default function AdminRooms() {
               </div>
 
               <button type="submit" style={styles.submitBtn}>
-                {editingRoom ? "Guardar Cambios" : "Crear Habitación"}
+                {editingRoom ? t('common.save') : t('admin.createRoom')}
               </button>
             </form>
           </div>

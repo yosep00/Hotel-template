@@ -4,9 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BrandLogo } from '@/components/HotelBranding';
+import { useTranslation } from '@/components/LanguageProvider';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -59,14 +62,18 @@ export default function RegisterPage() {
           <BrandLogo />
         </Link>
 
-        <h2 style={styles.title}>Crear Cuenta</h2>
-        <p style={styles.subtitle}>Regístrate como cliente para gestionar tus reservas y pagos.</p>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+          <LanguageSwitcher />
+        </div>
+
+        <h2 style={styles.title}>{t('auth.registerTitle')}</h2>
+        <p style={styles.subtitle}>{t('auth.registerSub')}</p>
 
         {error && <div style={styles.errorAlert}>{error}</div>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Nombre Completo</label>
+            <label style={styles.label}>{t('auth.name')}</label>
             <input
               type="text"
               value={name}
@@ -78,7 +85,7 @@ export default function RegisterPage() {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Correo Electrónico</label>
+            <label style={styles.label}>{t('auth.email')}</label>
             <input
               type="email"
               value={email}
@@ -90,7 +97,7 @@ export default function RegisterPage() {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Contraseña</label>
+            <label style={styles.label}>{t('auth.password')}</label>
             <input
               type="password"
               value={password}
@@ -103,14 +110,14 @@ export default function RegisterPage() {
           </div>
 
           <button type="submit" disabled={loading} style={styles.submitBtn}>
-            {loading ? <div style={styles.spinner}></div> : "Registrarse"}
+            {loading ? <div style={styles.spinner}></div> : t('auth.submit')}
           </button>
         </form>
 
         <div style={styles.divider}></div>
 
         <p style={styles.footerText}>
-          ¿Ya tienes una cuenta? <Link href="/login" style={styles.link}>Inicia sesión aquí</Link>
+          {t('auth.haveAccount')} <Link href="/login" style={styles.link}>{t('auth.login')}</Link>
         </p>
       </div>
     </div>

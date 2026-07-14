@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminUserMenu from '@/components/AdminUserMenu';
 import { BrandLogo } from '@/components/HotelBranding';
+import { useTranslation } from '@/components/LanguageProvider';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function AdminBookings() {
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +48,7 @@ export default function AdminBookings() {
         })
       });
 
-      if (!res.ok) throw new Error("No se pudo actualizar la reserva");
+      if (!res.ok) throw new Error(t('admin.updateError'));
       
       // Recargar datos localmente
       fetchData();
@@ -55,14 +58,14 @@ export default function AdminBookings() {
   };
 
   const handleDeleteBooking = async (bookingId) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar esta reserva del sistema permanentemente?")) return;
+    if (!confirm(t('admin.deleteBookingConfirm'))) return;
 
     try {
       const res = await fetch(`/api/bookings/${bookingId}`, {
         method: 'DELETE'
       });
 
-      if (!res.ok) throw new Error("No se pudo eliminar la reserva");
+      if (!res.ok) throw new Error(t('admin.deleteBookingError'));
 
       fetchData();
     } catch (err) {
@@ -72,7 +75,7 @@ export default function AdminBookings() {
 
   const getRoomName = (roomId) => {
     const room = rooms.find(r => r.id === roomId);
-    return room ? room.name : "Habitación Desconocida";
+    return room ? room.name : t('admin.unknownRoom');
   };
 
   const filteredBookings = bookings.filter(b => {
@@ -86,27 +89,27 @@ export default function AdminBookings() {
       <aside style={styles.sidebar}>
         <Link href="/" style={styles.logoLink}>
           <BrandLogo />
-          <span style={styles.logoSub}>Panel Admin</span>
+          <span style={styles.logoSub}>{t('nav.admin')}</span>
         </Link>
-        
+
         <nav style={styles.nav}>
           <Link href="/admin" style={styles.navItem}>
-            📊 Dashboard
+            📊 {t('admin.dashboard')}
           </Link>
           <Link href="/admin/bookings" style={{ ...styles.navItem, ...styles.navItemActive }}>
-            📅 Reservas
+            📅 {t('admin.bookings')}
           </Link>
           <Link href="/admin/rooms" style={styles.navItem}>
-            🛏️ Habitaciones / Inventario
+            🛏️ {t('admin.rooms')}
           </Link>
           <Link href="/admin/settings" style={styles.navItem}>
-            ⚙️ Configuración
+            ⚙️ {t('admin.settings')}
           </Link>
         </nav>
 
         <div style={styles.sidebarFooter}>
           <Link href="/" style={styles.backLink}>
-            ← Volver a la Web Principal
+            ← {t('nav.backToSite')}
           </Link>
         </div>
       </aside>
@@ -116,110 +119,111 @@ export default function AdminBookings() {
         {/* TOP BAR */}
         <header style={styles.topBar}>
           <div>
-            <h2 style={styles.title}>Listado de Reservas</h2>
-            <p style={styles.subtitle}>Consulta y actualiza el estado de las estadías.</p>
+            <h2 style={styles.title}>{t('admin.bookingsList')}</h2>
+            <p style={styles.subtitle}>{t('admin.bookingsSub2')}</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={styles.filters}>
-              <label style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Filtrar por Estado:</label>
+              <label style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{t('admin.filterByStatus')}</label>
               <select 
                 value={filterStatus} 
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="input-field"
                 style={styles.filterSelect}
               >
-                <option value="all">Todas las Reservas</option>
-                <option value="pending">Pendientes</option>
-                <option value="confirmed">Confirmadas</option>
-                <option value="cancelled">Canceladas</option>
+                <option value="all">{t('admin.all')}</option>
+                <option value="pending">{t('admin.pending')}</option>
+                <option value="confirmed">{t('admin.confirmed')}</option>
+                <option value="cancelled">{t('admin.cancelled')}</option>
               </select>
             </div>
+            <LanguageSwitcher />
             <AdminUserMenu />
           </div>
         </header>
 
         {loading ? (
-          <div style={styles.loadingContainer}>
-            <div style={styles.spinner}></div>
-            <p>Cargando reservas...</p>
-          </div>
-        ) : (
-          <div style={styles.content}>
-            {filteredBookings.length === 0 ? (
-              <div style={styles.emptyState}>
-                <p>No se encontraron reservas.</p>
-              </div>
-            ) : (
-              <div style={styles.tableWrapper}>
-                <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={styles.th}>ID</th>
-                      <th style={styles.th}>Huésped</th>
-                      <th style={styles.th}>Habitación</th>
-                      <th style={styles.th}>Estadía</th>
-                      <th style={styles.th}>Monto</th>
-                      <th style={styles.th}>Estado</th>
-                      <th style={styles.th}>Pago</th>
-                      <th style={styles.th}>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredBookings.map(b => (
-                      <tr key={b.id} style={styles.tr}>
-                        <td style={styles.tdCode}>{b.id}</td>
-                        <td style={styles.td}>
-                          <div style={{ fontWeight: '600', color: 'var(--primary)' }}>{b.guestName}</div>
-                          <div style={styles.guestSub}>{b.guestEmail} • {b.guestPhone}</div>
-                        </td>
-                        <td style={styles.td}>{getRoomName(b.roomId)}</td>
-                        <td style={styles.td}>
-                          <div>{b.checkIn} al {b.checkOut}</div>
-                        </td>
-                        <td style={styles.tdPrice}>${b.totalPrice.toFixed(2)}</td>
-                        <td style={styles.td}>
-                          <span style={b.status === 'confirmed' ? styles.badgeSuccess : b.status === 'pending' ? styles.badgeWarning : styles.badgeDanger}>
-                            {b.status === 'confirmed' ? 'Confirmado' : b.status === 'pending' ? 'Pendiente' : 'Cancelado'}
-                          </span>
-                        </td>
-                        <td style={styles.td}>
-                          <span style={b.paymentStatus === 'paid' ? styles.badgeSuccess : styles.badgeDanger}>
-                            {b.paymentStatus === 'paid' ? 'Pagado' : 'Impago'}
-                          </span>
-                        </td>
-                        <td style={styles.tdActions}>
-                          <div style={styles.actionBtnGroup}>
-                            {b.status === 'pending' && (
-                              <button 
-                                onClick={() => handleUpdateStatus(b.id, 'confirmed', 'paid')}
-                                style={styles.btnActionConfirm}
-                              >
-                                Confirmar
-                              </button>
-                            )}
-                            {b.status !== 'cancelled' && (
-                              <button 
-                                onClick={() => handleUpdateStatus(b.id, 'cancelled', b.paymentStatus)}
-                                style={styles.btnActionCancel}
-                              >
-                                Cancelar
-                              </button>
-                            )}
-                            <button 
-                              onClick={() => handleDeleteBooking(b.id)}
-                              style={styles.btnActionDelete}
-                              title="Eliminar del sistema"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </td>
+            <div style={styles.loadingContainer}>
+              <div style={styles.spinner}></div>
+              <p>{t('common.loading')}</p>
+            </div>
+          ) : (
+            <div style={styles.content}>
+              {filteredBookings.length === 0 ? (
+                <div style={styles.emptyState}>
+                  <p>{t('admin.empty')}</p>
+                </div>
+              ) : (
+                <div style={styles.tableWrapper}>
+                  <table style={styles.table}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>ID</th>
+                        <th style={styles.th}>{t('admin.guestCol')}</th>
+                        <th style={styles.th}>{t('admin.roomCol')}</th>
+                        <th style={styles.th}>{t('admin.datesCol')}</th>
+                        <th style={styles.th}>{t('admin.total')}</th>
+                        <th style={styles.th}>{t('admin.status')}</th>
+                        <th style={styles.th}>{t('admin.payment')}</th>
+                        <th style={styles.th}>{t('admin.actions')}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody>
+                      {filteredBookings.map(b => (
+                        <tr key={b.id} style={styles.tr}>
+                          <td style={styles.tdCode}>{b.id}</td>
+                          <td style={styles.td}>
+                            <div style={{ fontWeight: '600', color: 'var(--primary)' }}>{b.guestName}</div>
+                            <div style={styles.guestSub}>{b.guestEmail} • {b.guestPhone}</div>
+                          </td>
+                          <td style={styles.td}>{getRoomName(b.roomId)}</td>
+                          <td style={styles.td}>
+                            <div>{b.checkIn} {t('booking.to')} {b.checkOut}</div>
+                          </td>
+                          <td style={styles.tdPrice}>${b.totalPrice.toFixed(2)}</td>
+                          <td style={styles.td}>
+                            <span style={b.status === 'confirmed' ? styles.badgeSuccess : b.status === 'pending' ? styles.badgeWarning : styles.badgeDanger}>
+                              {b.status === 'confirmed' ? t('admin.statusConfirmed') : b.status === 'pending' ? t('admin.statusPending') : t('admin.statusCancelled')}
+                            </span>
+                          </td>
+                          <td style={styles.td}>
+                            <span style={b.paymentStatus === 'paid' ? styles.badgeSuccess : styles.badgeDanger}>
+                              {b.paymentStatus === 'paid' ? t('admin.paid') : t('admin.unpaid')}
+                            </span>
+                          </td>
+                          <td style={styles.tdActions}>
+                            <div style={styles.actionBtnGroup}>
+                              {b.status === 'pending' && (
+                                <button 
+                                  onClick={() => handleUpdateStatus(b.id, 'confirmed', 'paid')}
+                                  style={styles.btnActionConfirm}
+                                >
+                                  {t('admin.confirm')}
+                                </button>
+                              )}
+                              {b.status !== 'cancelled' && (
+                                <button 
+                                  onClick={() => handleUpdateStatus(b.id, 'cancelled', b.paymentStatus)}
+                                  style={styles.btnActionCancel}
+                                >
+                                  {t('admin.cancel')}
+                                </button>
+                              )}
+                              <button 
+                                onClick={() => handleDeleteBooking(b.id)}
+                                style={styles.btnActionDelete}
+                                title="Eliminar del sistema"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
           </div>
         )}
       </main>

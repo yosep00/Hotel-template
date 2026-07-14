@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminUserMenu from '@/components/AdminUserMenu';
 import { BrandLogo } from '@/components/HotelBranding';
+import { useTranslation } from '@/components/LanguageProvider';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     totalRevenue: 0,
     occupancyRate: 0,
@@ -65,27 +68,27 @@ export default function AdminDashboard() {
       <aside style={styles.sidebar}>
         <Link href="/" style={styles.logoLink}>
           <BrandLogo />
-          <span style={styles.logoSub}>Panel Admin</span>
+          <span style={styles.logoSub}>{t('nav.admin')}</span>
         </Link>
-        
+
         <nav style={styles.nav}>
           <Link href="/admin" style={{ ...styles.navItem, ...styles.navItemActive }}>
-            📊 Dashboard
+            📊 {t('admin.dashboard')}
           </Link>
           <Link href="/admin/bookings" style={styles.navItem}>
-            📅 Reservas
+            📅 {t('admin.bookings')}
           </Link>
           <Link href="/admin/rooms" style={styles.navItem}>
-            🛏️ Habitaciones / Inventario
+            🛏️ {t('admin.rooms')}
           </Link>
           <Link href="/admin/settings" style={styles.navItem}>
-            ⚙️ Configuración
+            ⚙️ {t('admin.settings')}
           </Link>
         </nav>
 
         <div style={styles.sidebarFooter}>
           <Link href="/" style={styles.backLink}>
-            ← Volver a la Web Principal
+            ← {t('nav.backToSite')}
           </Link>
         </div>
       </aside>
@@ -95,10 +98,13 @@ export default function AdminDashboard() {
         {/* TOP BAR */}
         <header style={styles.topBar}>
           <div>
-            <h2 style={styles.title}>Panel de Control</h2>
-            <p style={styles.subtitle}>Resumen del estado y reservas en tiempo real.</p>
+            <h2 style={styles.title}>{t('admin.panel')}</h2>
+            <p style={styles.subtitle}>{t('admin.panelSub')}</p>
           </div>
-          <AdminUserMenu />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <LanguageSwitcher />
+            <AdminUserMenu />
+          </div>
         </header>
 
         {loading ? (
@@ -113,56 +119,56 @@ export default function AdminDashboard() {
               <div style={styles.statCard}>
                 <span style={styles.statIcon}>💸</span>
                 <div>
-                  <h4 style={styles.statLabel}>Ingresos</h4>
-                  <p style={styles.statVal}>${stats.totalRevenue.toFixed(2)} USD</p>
-                </div>
-              </div>
-              <div style={styles.statCard}>
-                <span style={styles.statIcon}>🛌</span>
-                <div>
-                  <h4 style={styles.statLabel}>Ocupación Hoy</h4>
-                  <p style={styles.statVal}>{stats.occupancyRate}%</p>
-                </div>
-              </div>
-              <div style={styles.statCard}>
-                <span style={styles.statIcon}>📅</span>
-                <div>
-                  <h4 style={styles.statLabel}>Reservas</h4>
-                  <p style={styles.statVal}>{stats.totalBookings}</p>
-                </div>
-              </div>
-              <div style={styles.statCard}>
-                <span style={styles.statIcon}>🔑</span>
-                <div>
-                  <h4 style={styles.statLabel}>Habitaciones</h4>
-                  <p style={styles.statVal}>{stats.activeRooms}</p>
-                </div>
-              </div>
+                 <h4 style={styles.statLabel}>{t('admin.confirmedRevenue')}</h4>
+                 <p style={styles.statVal}>${stats.totalRevenue.toFixed(2)} USD</p>
+               </div>
+             </div>
+             <div style={styles.statCard}>
+               <span style={styles.statIcon}>🛌</span>
+               <div>
+                 <h4 style={styles.statLabel}>{t('admin.occupancy')}</h4>
+                 <p style={styles.statVal}>{stats.occupancyRate}%</p>
+               </div>
+             </div>
+             <div style={styles.statCard}>
+               <span style={styles.statIcon}>📅</span>
+               <div>
+                 <h4 style={styles.statLabel}>{t('admin.totalBookings')}</h4>
+                 <p style={styles.statVal}>{stats.totalBookings}</p>
+               </div>
+             </div>
+             <div style={styles.statCard}>
+               <span style={styles.statIcon}>🔑</span>
+               <div>
+                 <h4 style={styles.statLabel}>{t('admin.roomsCount')}</h4>
+                 <p style={styles.statVal}>{stats.activeRooms}</p>
+               </div>
+             </div>
             </div>
 
             {/* RECENT BOOKINGS */}
             <div style={styles.dashboardSection}>
               <div style={styles.sectionHeader}>
-                <h3 style={{ fontSize: '18px', fontWeight: '600' }}>Reservas Recientes</h3>
-                <Link href="/admin/bookings" style={styles.viewAllBtn}>Ver Todas las Reservas →</Link>
+                <h3 style={{ fontSize: '18px', fontWeight: '600' }}>{t('admin.recent')}</h3>
+                <Link href="/admin/bookings" style={styles.viewAllBtn}>{t('admin.viewAll')}</Link>
               </div>
 
               {recentBookings.length === 0 ? (
                 <div style={styles.emptyState}>
-                  <p>Aún no hay reservas registradas en el sistema. Realiza una reserva en la página de inicio para probar.</p>
+                   <p>{t('admin.emptyBookings')}</p>
                 </div>
               ) : (
                 <div style={styles.tableWrapper}>
                   <table style={styles.table}>
                     <thead>
                       <tr>
-                        <th style={styles.th}>ID</th>
-                        <th style={styles.th}>Huésped</th>
-                        <th style={styles.th}>Check-In</th>
-                        <th style={styles.th}>Check-Out</th>
-                        <th style={styles.th}>Monto</th>
-                        <th style={styles.th}>Estado</th>
-                        <th style={styles.th}>Pago</th>
+                         <th style={styles.th}>ID</th>
+                         <th style={styles.th}>{t('admin.guest')}</th>
+                         <th style={styles.th}>{t('admin.checkIn')}</th>
+                         <th style={styles.th}>{t('admin.checkOut')}</th>
+                         <th style={styles.th}>{t('admin.total')}</th>
+                         <th style={styles.th}>{t('admin.status')}</th>
+                         <th style={styles.th}>{t('admin.payment')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -175,12 +181,12 @@ export default function AdminDashboard() {
                           <td style={styles.tdPrice}>${b.totalPrice.toFixed(2)}</td>
                           <td style={styles.td}>
                             <span style={b.status === 'confirmed' ? styles.badgeSuccess : b.status === 'pending' ? styles.badgeWarning : styles.badgeDanger}>
-                              {b.status === 'confirmed' ? 'Confirmado' : b.status === 'pending' ? 'Pendiente' : 'Cancelado'}
+                              {b.status === 'confirmed' ? t('admin.statusConfirmed') : b.status === 'pending' ? t('admin.statusPending') : t('admin.statusCancelled')}
                             </span>
                           </td>
                           <td style={styles.td}>
                             <span style={b.paymentStatus === 'paid' ? styles.badgeSuccess : styles.badgeDanger}>
-                              {b.paymentStatus === 'paid' ? 'Pagado' : 'Impago'}
+                              {b.paymentStatus === 'paid' ? t('admin.paid') : t('admin.unpaid')}
                             </span>
                           </td>
                         </tr>
