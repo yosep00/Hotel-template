@@ -1,0 +1,62 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hotel {
+  id              String @id @default("hotel-1")
+  hotelName       String @default("Grand Oasis Resort & Spa")
+  hotelEmail      String @default("reservas@grandoasisresort.com")
+  hotelPhone      String @default("+1 (555) 123-4567")
+  hotelAddress    String @default("Km 14.5, Boulevard Kukulcan, Zona Hotelera, Cancún")
+  stripePublicKey  String @default("")
+  stripeSecretKey  String @default("")
+  logoUrl        String?
+  primaryColor   String?
+  accentColor    String?
+  currency        String @default("USD")
+  updatedAt       DateTime @updatedAt
+}
+
+model Room {
+  id              String   @id @default(cuid())
+  name            String
+  description      String
+  basePrice        Float
+  capacityAdults   Int      @default(2)
+  capacityChildren Int      @default(0)
+  stock           Int      @default(1)
+  images          String[]
+  amenities       String[]
+  bookings        Booking[]
+  createdAt       DateTime @default(now())
+}
+
+model Booking {
+  id             String   @id @default(cuid())
+  roomId         String
+  room           Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  checkIn        String
+  checkOut       String
+  guestName      String
+  guestEmail     String
+  guestPhone     String   @default("")
+  totalPrice     Float
+  status         String   @default("confirmed") // confirmed | pending | cancelled
+  paymentStatus  String   @default("paid")      // paid | unpaid
+  createdAt      DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("client") // admin | client
+  createdAt DateTime @default(now())
+}
