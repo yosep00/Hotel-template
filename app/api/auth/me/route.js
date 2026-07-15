@@ -11,7 +11,7 @@ export async function GET() {
       return NextResponse.json({ user: null });
     }
 
-    const userData = verifySession(sessionCookie.value);
+    const userData = await verifySession(sessionCookie.value);
     return NextResponse.json({ user: userData });
   } catch (error) {
     return NextResponse.json({ user: null });

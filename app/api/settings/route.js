@@ -36,7 +36,7 @@ export async function GET() {
 }
 
 export async function PUT(request) {
-  const guard = requireAdmin(request);
+  const guard = await requireAdmin(request);
   if (guard) return guard;
   try {
     const body = await request.json();

@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/session';
 import { apiError } from '@/lib/apiError';
 
 export async function POST(request) {
-  const guard = requireAdmin(request);
+  const guard = await requireAdmin(request);
   if (guard) return guard;
   try {
     const { name, email, password } = await request.json();

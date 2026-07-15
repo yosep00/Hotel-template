@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { verifySession } from '@/lib/session';
 
-export function proxy(request) {
+export async function proxy(request) {
   const cookie = request.cookies.get('user_session');
-  const session = cookie ? verifySession(cookie.value) : null;
+  const session = cookie ? await verifySession(cookie.value) : null;
   const role = session?.role || null;
 
   if (role !== 'admin') {

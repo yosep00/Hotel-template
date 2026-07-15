@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/session';
 import { apiError } from '@/lib/apiError';
 
 export async function GET(request, { params }) {
-  const guard = requireAdmin(request);
+  const guard = await requireAdmin(request);
   if (guard) return guard;
   try {
     const { id } = await params;
@@ -19,7 +19,7 @@ export async function GET(request, { params }) {
 }
 
 export async function PUT(request, { params }) {
-  const guard = requireAdmin(request);
+  const guard = await requireAdmin(request);
   if (guard) return guard;
   try {
     const { id } = await params;
@@ -42,7 +42,7 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  const guard = requireAdmin(request);
+  const guard = await requireAdmin(request);
   if (guard) return guard;
   try {
     const { id } = await params;
