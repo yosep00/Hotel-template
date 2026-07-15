@@ -3,7 +3,7 @@ import { getBookings, saveBooking, checkAvailability, getRoomById } from '@/lib/
 import { requireAdmin } from '@/lib/session';
 import { apiError } from '@/lib/apiError';
 
-export async function GET() {
+export async function GET(request) {
   const guard = requireAdmin(request);
   if (guard) return guard;
   try {
