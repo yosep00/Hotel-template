@@ -11,7 +11,7 @@
 - Admin: `admin@grandoasis.com` / `admin123`.
 - Variables CSS en `app/globals.css`: `--primary`, `--accent`, etc. Inyectadas dinámicamente por `HotelBrandingProvider` vía `:root`.
 - **Esta versión de Next usa `proxy.js` (NO `middleware.js`)** — middleware deprecado/renombrado a proxy. Matcher de `proxy.js`: SOLO `['/admin', '/admin/:path*']` → protege admin, deja públicos `/api`, `/robots.txt`, `/sitemap.xml`, `/login`, `/register`, estáticos.
-- Sesión: cookie `user_session` (JSON `{id, name, email, role}`), httpOnly, maxAge 1 día, set en `/api/auth/login/route.js`.
+- Sesión: cookie `user_session` **FIRMADA HMAC** (no JSON plano) vía `lib/session.js` (`createSession`/`verifySession`, Web Crypto `crypto.subtle`). Payload `{id, name, email, role}`. Requiere env `SESSION_SECRET` (confirmado configurado en Vercel → token forjado con secreto fallback es RECHAZADO). httpOnly, `secure` en prod, maxAge 1 día, set en `/api/auth/login/route.js`. `requireAdmin(request)` (**async**) devuelve `NextResponse` 401 si no hay sesión admin; usado en todas las APIs de mutación + `proxy.js`. ⚠️ `verifySession` es async: SIEMPRE `await verifySession(...)` (sin `await` devuelve una Promise → `payload.role` undefined → bloquea a todos).
 - `run_sql.mjs` lee token de `process.env.SUPABASE_TOKEN`; excluido del repo vía `.gitignore` (`run_sql.mjs`, `push_repo.mjs`, `.env*`).
 - **Exports importantes:** `LanguageProvider` = export DEFAULT (en `components/LanguageProvider.js`); `HotelBrandingProvider` = export DEFAULT (en `components/HotelBranding.js`); `useTranslation`, `useHotelSettings`, `BrandLogo`, `BrandName` = named exports. ⚠️ Error típico: importar `LanguageProvider`/`HotelBrandingProvider` como named → `Element type is invalid: got undefined` en build.
 - i18n en `lib/i18n.js`: objeto `dict = { es: {...}, en: {...} }` con claves `nav.*`, `hero.*`, `search.*`, `rooms.*`, `services.*`, `contact.*`, `footer.*`, `auth.*`, `admin.*`, `booking.*`, `amenity.*`, `common.*`. `useTranslation()` devuelve `t(key)`; fallback a la clave si falta. Persistencia: cookie `lang` + `localStorage`.
@@ -39,6 +39,12 @@
     - **Servicios Esenciales editables (commit `8805066`)**: modelo `Service` + tabla Supabase + 3 sembrados; API `/api/services` y `/api/services/[id]`; admin `/admin/services` (estilo Inventario) con nav "Servicios" en todas las páginas admin; home renderiza servicios dinámicamente. Verificado `/api/services` devuelve los 3 servicios.
     - **Panel de Analíticas (commit `a9e4623`)**: `/admin/analytics` con KPIs (ingresos confirmados, valor medio, reservas confirmadas, tasa cancelación, pagos pendientes), gráfico ingresos por mes (barras CSS), reservas por estado (barras progreso) y top habitaciones por ingresos. Nav "📈 Analíticas" en todas las páginas admin; i18n ES/EN. Protegida por proxy (verificado 307 → login).
     - **Reset demo 24h + provisioning cliente (commit `0ef93b4`)**: `.github/workflows/reset-demo.yml` (cron diario + manual) ejecuta `scripts/reset_demo.mjs` → borra `User`/`Booking`/`Room`/`Service`/`Hotel` y resembra defaults (hotel, 3 hab, 3 servicios, admin). Requiere secreto repo `DEMO_DATABASE_URL`. Seed único en `scripts/seed_data.mjs` (reusa `prisma/seed.js`). `scripts/provision_client.mjs` inicializa la base de un cliente nuevo y lista env vars para Vercel. `docs/HANDOFF_TEMPLATE.md` = plantilla de entrega. Build OK.
+    - **Endurecimiento de seguridad + 3 peticiones del usuario (commits `7638602`, `7b5433b`, `8f1abcc`)**:
+      - Sesión firmada HMAC (`lib/session.js`, `SESSION_SECRET` **confirmado en Vercel** → token forjado con fallback es rechazado). `proxy.js` y `requireAdmin` verifican la cookie. APIs de mutación (`settings` PUT, `rooms` POST/DELETE, `services` POST/DELETE, `create-admin`) y GET de PII (`/api/bookings`, `/api/users`) protegidas con `requireAdmin` (401 sin sesión admin). POST `/api/bookings` se deja **PÚBLICO** (reserva web). `lib/apiError.js` devuelve error genérico en producción. `next.config.mjs`: headers de seguridad (CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`).
+      - **Bug crítico corregido**: `requireAdmin`/`proxy.js`/`me` llamaban `verifySession` (async) **sin `await`** → bloqueaba a TODOS (admin incluido). Ahora `async`+`await` en todos los call sites. Verificado en Vercel: admin válido → `/admin/users`,`/api/users`,`/api/bookings` = 200; sin sesión = 401; cookie forjada = 307; `settings` GET y `bookings` POST públicos = 200.
+      - **#1 (hotelName no editable)**: `hotelName` quitado de `PUBLIC_FIELDS` en `app/admin/settings/page.js` (se fija en provisioning).
+      - **#2 (hero no se actualizaba al navegar)**: `components/HotelBranding.js` refetch `/api/settings` en cada cambio de `usePathname()`.
+      - **#3 (página de usuarios)**: `lib/db.js` +`getUsersWithBookings` (NO expone `password`), `app/api/users/route.js` (GET protegido), `app/admin/users/page.js` (tabla + expand reservas), i18n `admin.users*`, nav "👥 Usuarios" en TODAS las páginas admin. Verificado.
 
 ### Active
 - (ninguno en curso)
@@ -47,13 +53,19 @@
 - (none)
 
 ## Next Move
-1. (Manual, requerido para el reset 24h) Añadir el secreto de repo `DEMO_DATABASE_URL` en GitHub (Settings → Secrets → Actions) con el `DATABASE_URL` (pooler 6543) que usa la demo en Vercel. Luego disparar el workflow `Reset demo (24h)` manualmente (`workflow_dispatch`) para validar.
-2. (Opcional, manual) Verificar en navegador: `LanguageSwitcher` ES/EN en home/admin, persistencia; subir hero en `/admin/settings`; CRUD servicios y panel Analytics con datos reales.
+1. (Manual, recomendado) La demo (`hotel-template-theta.vercel.app`) tiene **~456 usuarios de prueba** acumulados por los agentes de carga/pentest (emails `loadtest+*@demo.test`, etc.) y reservas de prueba. Para dejarla limpia: añadir el secreto de repo `DEMO_DATABASE_URL` en GitHub (Settings → Secrets → Actions) con el `DATABASE_URL` pooler 6543 de la demo, y disparar el workflow `Reset demo (24h)` (`workflow_dispatch`). Esto borra todo y resembra el estado de fábrica.
+2. (Opcional, manual) Verificar en navegador: `LanguageSwitcher` ES/EN en home/admin; subir hero en `/admin/settings`; CRUD servicios; panel Analytics y `/admin/users` con datos reales.
 3. (Opcional) Traducir textos restantes menores (emails de confirmación si existen, placeholders).
 4. (Opcional) Siguiente fase sugerida: multi-hotel (un repo + deploy + DB por cliente) o exportar datos (CSV).
 
 ## Relevant Files
 - `proxy.js`: protección `/admin` (sesión). Matcher solo `/admin`, `/admin/:path*`.
+- `lib/session.js`: `createSession`/`verifySession` (HMAC, Web Crypto) + `requireAdmin` (async, 401). Requiere env `SESSION_SECRET`.
+- `lib/apiError.js`: `apiError(e, status?)` → error genérico en prod, detalle en dev.
+- `app/api/auth/login/route.js`, `register/route.js`: setean cookie firmada.
+- `app/api/auth/me/route.js`: `verifySession` (await) → devuelve `{user}`.
+- `app/api/users/route.js` (GET, protegido) + `lib/db.js:getUsersWithBookings` (sin `password`).
+- `app/admin/users/page.js`: tabla usuarios + expand reservas (espera `user.bookings[]`).
 - `lib/i18n.js`: diccionarios ES/EN (todas las claves).
 - `components/LanguageProvider.js` (default export `LanguageProvider`, named `useTranslation`), `components/LanguageSwitcher.js` (default export).
 - `components/HotelBranding.js`: `HotelBrandingProvider` (default), `useHotelSettings`, `BrandLogo`, `BrandName`.
