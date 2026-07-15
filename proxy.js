@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server';
+import { verifySession } from '@/lib/session';
 
 export function proxy(request) {
   const cookie = request.cookies.get('user_session');
-  let role = null;
-  if (cookie) {
-    try {
-      role = JSON.parse(cookie.value).role;
-    } catch {
-      role = null;
-    }
-  }
+  const session = cookie ? verifySession(cookie.value) : null;
+  const role = session?.role || null;
 
   if (role !== 'admin') {
     const url = new URL('/login', request.url);

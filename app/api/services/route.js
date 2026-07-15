@@ -1,16 +1,20 @@
 import { NextResponse } from 'next/server';
 import { getServices, saveService } from '@/lib/db';
+import { requireAdmin } from '@/lib/session';
+import { apiError } from '@/lib/apiError';
 
 export async function GET() {
   try {
     const services = await getServices();
     return NextResponse.json(services);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 }
 
 export async function POST(request) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
   try {
     const body = await request.json();
     if (!body.name || !body.description) {
@@ -19,6 +23,6 @@ export async function POST(request) {
     const newService = await saveService(body);
     return NextResponse.json(newService);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 }

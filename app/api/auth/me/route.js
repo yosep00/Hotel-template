@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { verifySession } from '@/lib/session';
 
 export async function GET() {
   try {
@@ -10,9 +11,9 @@ export async function GET() {
       return NextResponse.json({ user: null });
     }
 
-    const userData = JSON.parse(sessionCookie.value);
+    const userData = verifySession(sessionCookie.value);
     return NextResponse.json({ user: userData });
   } catch (error) {
-    return NextResponse.json({ user: null, error: error.message });
+    return NextResponse.json({ user: null });
   }
 }

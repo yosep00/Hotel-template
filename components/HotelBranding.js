@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 const HotelSettingsContext = createContext(null);
 
@@ -17,6 +18,7 @@ const DEFAULT_SETTINGS = {
 
 export default function HotelBrandingProvider({ children }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const pathname = usePathname();
 
   useEffect(() => {
     let active = true;
@@ -36,7 +38,7 @@ export default function HotelBrandingProvider({ children }) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <HotelSettingsContext.Provider value={settings}>

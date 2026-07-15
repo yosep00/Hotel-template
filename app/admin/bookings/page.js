@@ -108,6 +108,9 @@ export default function AdminBookings() {
           <Link href="/admin/services" style={styles.navItem}>
             💎 {t('admin.services')}
           </Link>
+          <Link href="/admin/users" style={styles.navItem}>
+            👥 {t('admin.users')}
+          </Link>
           <Link href="/admin/settings" style={styles.navItem}>
             ⚙️ {t('admin.settings')}
           </Link>

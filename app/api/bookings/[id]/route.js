@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getBookingById, saveBooking, deleteBooking } from '@/lib/db';
+import { requireAdmin } from '@/lib/session';
+import { apiError } from '@/lib/apiError';
 
 export async function GET(request, { params }) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
   try {
     const { id } = await params;
     const booking = await getBookingById(id);
@@ -10,11 +14,13 @@ export async function GET(request, { params }) {
     }
     return NextResponse.json(booking);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 }
 
 export async function PUT(request, { params }) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
   try {
     const { id } = await params;
     const body = await request.json();
@@ -31,11 +37,13 @@ export async function PUT(request, { params }) {
 
     return NextResponse.json(updatedBooking);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 }
 
 export async function DELETE(request, { params }) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
   try {
     const { id } = await params;
     const success = await deleteBooking(id);
@@ -44,6 +52,6 @@ export async function DELETE(request, { params }) {
     }
     return NextResponse.json({ message: "Reserva eliminada correctamente" });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 }

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSettings, saveSettings } from '@/lib/db';
+import { requireAdmin } from '@/lib/session';
+import { apiError } from '@/lib/apiError';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +36,8 @@ export async function GET() {
 }
 
 export async function PUT(request) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
   try {
     const body = await request.json();
     const data = {};
@@ -43,6 +47,6 @@ export async function PUT(request) {
     const updated = await saveSettings(data);
     return NextResponse.json(sanitize(updated));
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 }

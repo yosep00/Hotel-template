@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getUserByEmail, saveUser } from '@/lib/db';
+import { createSession } from '@/lib/session';
 
 export async function POST(request) {
   try {
@@ -22,7 +23,7 @@ export async function POST(request) {
       role: 'client' // Solo los administradores pueden crear más administradores
     });
 
-    const sessionData = JSON.stringify({
+    const token = await createSession({
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
@@ -30,7 +31,7 @@ export async function POST(request) {
     });
 
     const cookieStore = await cookies();
-    cookieStore.set('user_session', sessionData, {
+    cookieStore.set('user_session', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

@@ -132,6 +132,9 @@ export default function AdminServices() {
           <Link href="/admin/services" style={{ ...styles.navItem, ...styles.navItemActive }}>
             💎 {t('admin.services')}
           </Link>
+          <Link href="/admin/users" style={styles.navItem}>
+            👥 {t('admin.users')}
+          </Link>
           <Link href="/admin/settings" style={styles.navItem}>
             ⚙️ {t('admin.settings')}
           </Link>

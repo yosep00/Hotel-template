@@ -8,7 +8,6 @@ import { useTranslation } from '@/components/LanguageProvider';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const PUBLIC_FIELDS = [
-  { key: 'hotelName', label: 'admin.fHotelName', type: 'text', placeholder: 'Grand Oasis Resort & Spa' },
   { key: 'hotelEmail', label: 'admin.fHotelEmail', type: 'email', placeholder: 'reservas@hotel.com' },
   { key: 'hotelPhone', label: 'admin.fHotelPhone', type: 'text', placeholder: '+1 (555) 123-4567' },
   { key: 'currency', label: 'admin.fCurrency', type: 'text', placeholder: 'USD' },
@@ -34,6 +33,9 @@ export default function AdminSettings() {
     logoUrl: '',
     primaryColor: '',
     accentColor: '',
+    heroImage: '',
+    heroTitle: '',
+    heroDescription: '',
   });
   const [message, setMessage] = useState(null); // { type: 'success' | 'error', text }
 
@@ -111,6 +113,9 @@ export default function AdminSettings() {
           </Link>
           <Link href="/admin/services" style={styles.navItem}>
             💎 {t('admin.services')}
+          </Link>
+          <Link href="/admin/users" style={styles.navItem}>
+            👥 {t('admin.users')}
           </Link>
           <Link
             href="/admin/settings"

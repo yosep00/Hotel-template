@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
 import { getUserByEmail } from '@/lib/db';
+import { createSession } from '@/lib/session';
 
 export async function POST(request) {
   try {
@@ -15,8 +16,8 @@ export async function POST(request) {
       return NextResponse.json({ error: "Credenciales incorrectas" }, { status: 401 });
     }
 
-    // Guardar sesión en cookie (como string JSON simple para demostración local)
-    const sessionData = JSON.stringify({
+    // Guardar sesión en cookie FIRMADA (HMAC) para evitar falsificación
+    const token = await createSession({
       id: user.id,
       name: user.name,
       email: user.email,
@@ -24,7 +25,7 @@ export async function POST(request) {
     });
 
     const cookieStore = await cookies();
-    cookieStore.set('user_session', sessionData, {
+    cookieStore.set('user_session', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

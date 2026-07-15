@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getBookings, saveBooking, checkAvailability, getRoomById } from '@/lib/db';
+import { requireAdmin } from '@/lib/session';
+import { apiError } from '@/lib/apiError';
 
 export async function GET() {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
   try {
     const bookings = await getBookings();
     return NextResponse.json(bookings);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 }
 
@@ -52,6 +56,6 @@ export async function POST(request) {
 
     return NextResponse.json(newBooking);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 }
