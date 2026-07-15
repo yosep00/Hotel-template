@@ -1,0 +1,27 @@
+name: Reset demo (24h)
+
+on:
+  schedule:
+    # 06:00 UTC todos los días (ajusta a tu zona horaria preferida)
+    - cron: '0 6 * * *'
+  workflow_dispatch: {} # Permite ejecutar el reset manualmente desde la pestaña Actions
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Resetear base de datos del demo
+        run: node scripts/reset_demo.mjs
+        env:
+          # Secreto del repo (Settings > Secrets): debe ser el DATABASE_URL
+          # (pooler 6543) de la MISMA base que usa la demo en Vercel.
+          DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
