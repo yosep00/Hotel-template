@@ -1,0 +1,52 @@
+=====================================================================
+PLANTILLA DE CONTACTO — PROPUESTA HOTEL WHITE-LABEL
+=====================================================================
+
+--- VERSIÓN WHATSAPP (corta) ---
+Hola [Nombre del hotel], soy Jose Pablo Correa. Ayudo a hoteles
+y posadas familiares a recibir reservas directas desde su propia
+página web (sin comisiones de Booking/Airbnb). Por USD 500
+instalo todo: su web con disponibilidad y pagos online, panel
+para gestionar habitaciones y reservas, y lo dejo con su marca.
+Sin mensualidad. Incluye 30 días de soporte. ¿Le envío una demo
+de 15 minutos con su hotel cargado?
+
+--- VERSIÓN EMAIL (más completa) ---
+Asunto: Reciba reservas directas en su propio sitio web (sin comisión)
+
+Estimados [Nombre del hotel / Nombre del contacto]:
+
+¿Le gustaría que sus huéspedes reserve directo en su web, sin
+pagar comisiones a plataformas externas?
+
+Le ofrezco una solución web white-label, lista para operar:
+
+  • Sitio web de su hotel con motor de disponibilidad y reservas.
+  • Pagos online (Stripe) que entran directo a su banco.
+  • Panel de administración: habitaciones, reservas, servicios.
+  • Versión en español e inglés, SEO incluido.
+  • 100% a su marca (logo, colores, nombre).
+
+Inversión: USD 500 por hotel (configuración e despliegue incluidos).
+Sin mensualidad: usted solo paga las comisiones de Stripe.
+Incluye 30 días de soporte.
+
+Si quiere, le muestro una demo de 15 minutos con su hotel ya cargado.
+
+Saludos cordiales,
+Jose Pablo Correa
+josepa9510@hotmail.com
++57 320 734 8684
+
+=====================================================================
+NOTAS DE USO
+=====================================================================
+1. ANTES de enviar, confirme que el hotel NO tiene web propia:
+   busque "nombre del hotel + ciudad" en Google. Si solo aparece
+   en Booking/Airbnb/Instagram, es lead válido.
+2. Personalice [Nombre del hotel] en cada envío.
+3. Envíe por WhatsApp si tiene el número; si no, por email desde
+   la ficha del directorio (Welcome Argentina, ViajaRural,
+   GardenHotel, InterPatagonia, Cabañas Verificadas).
+4. Los leads de turismo vivencial (Perú/Chile) suelen no tener
+   web: son los más propensos a aceptar.

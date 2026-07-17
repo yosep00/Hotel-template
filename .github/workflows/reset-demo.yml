@@ -19,6 +19,16 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      - name: Verificar secreto DEMO_DATABASE_URL
+        run: |
+          if [ -z "${{ secrets.DEMO_DATABASE_URL }}" ]; then
+            echo "ERROR: El secreto DEMO_DATABASE_URL no está configurado."
+            echo "Ve a Settings > Secrets and variables > Actions y crea DEMO_DATABASE_URL"
+            echo "con el DATABASE_URL (pooler 6543) de la base de la demo en Vercel."
+            exit 1
+          fi
+          echo "Secreto DEMO_DATABASE_URL presente."
+
       - name: Resetear base de datos del demo
         run: node scripts/reset_demo.mjs
         env:

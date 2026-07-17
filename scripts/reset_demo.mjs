@@ -11,13 +11,24 @@
 import { PrismaClient } from '@prisma/client';
 import { seedData } from './seed_data.mjs';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  // El pooler 6543 tiene connection_limit=1; forzamos una sola conexión al pool
+  // para evitar "Connection pool timeout / Connection limit reached" durante el seed.
+  datasources: process.env.DATABASE_URL
+    ? { db: { url: process.env.DATABASE_URL } }
+    : undefined,
+});
 
 async function main() {
   if (!process.env.DATABASE_URL) {
-    console.error('Falta DATABASE_URL en el entorno.');
+    console.error(
+      'ERROR: Falta DATABASE_URL. Configura el secreto DEMO_DATABASE_URL en GitHub ' +
+        '(Settings > Secrets and variables > Actions) con el DATABASE_URL (pooler 6543) ' +
+        'de la base que usa la demo en Vercel.'
+    );
     process.exit(1);
   }
+  console.log('Usando DATABASE_URL:', process.env.DATABASE_URL.replace(/:[^:@]+@/, ':***@'));
 
   console.log('Borrando datos del demo...');
   // Orden: Booking antes que Room (FK onDelete Cascade), el resto independientes.
