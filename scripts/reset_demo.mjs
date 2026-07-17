@@ -11,45 +11,48 @@
 import { PrismaClient } from '@prisma/client';
 import { seedData } from './seed_data.mjs';
 
+// Normaliza la URL del secreto DEMO_DATABASE_URL ANTES de que Prisma la lea.
+// Prisma valida `schema.prisma` con env("DATABASE_URL") del entorno, así que
+// debemos reescribir process.env.DATABASE_URL con la forma que Prisma exige.
+function normalize(raw) {
+  if (!raw) return null;
+  let u = String(raw).replace(/^﻿/, '').trim(); // quita BOM y espacios/saltos
+  u = u.replace(/^postgres:\/\//, 'postgresql://'); // Supabase usa postgres://
+  return u;
+}
+
+const RAW = process.env.DATABASE_URL;
+const URL = normalize(RAW);
+
+if (!URL) {
+  console.error(
+    'ERROR: Falta DATABASE_URL. Configura el secreto DEMO_DATABASE_URL en GitHub ' +
+      '(Settings > Secrets and variables > Actions) con el DATABASE_URL (pooler 6543) ' +
+      'de la base que usa la demo en Vercel.'
+  );
+  process.exit(1);
+}
+
+if (!/^postgresql:\/\//.test(URL)) {
+  console.error(
+    'ERROR: El DATABASE_URL no empieza con "postgresql://" ni "postgres://". ' +
+      'Protocolo recibido: ' +
+      (URL.split('://')[0] || '(vacío)')
+  );
+  process.exit(1);
+}
+
+// Reescribir la env var para que schema.prisma (env("DATABASE_URL")) la lea normalizada.
+process.env.DATABASE_URL = URL;
+
 const prisma = new PrismaClient({
   // El pooler 6543 tiene connection_limit=1; forzamos una sola conexión al pool
   // para evitar "Connection pool timeout / Connection limit reached" durante el seed.
-  datasources: process.env.DATABASE_URL
-    ? {
-        db: {
-          url: process.env.DATABASE_URL.trim()
-            .replace(/^﻿/, '')
-            .replace(/^postgres:\/\//, 'postgresql://'),
-        },
-      }
-    : undefined,
+  datasources: { db: { url: URL } },
 });
 
 async function main() {
-  let raw = process.env.DATABASE_URL;
-  if (!raw) {
-    console.error(
-      'ERROR: Falta DATABASE_URL. Configura el secreto DEMO_DATABASE_URL en GitHub ' +
-        '(Settings > Secrets and variables > Actions) con el DATABASE_URL (pooler 6543) ' +
-        'de la base que usa la demo en Vercel.'
-    );
-    process.exit(1);
-  }
-
-  // Normaliza: quita BOM/espacios/saltos de línea y acepta el protocolo
-  // corto `postgres://` que usa Supabase (Prisma exige `postgresql://`).
-  raw = raw.trim().replace(/^﻿/, '');
-  const url = raw.replace(/^postgres:\/\//, 'postgresql://');
-
-  if (!/^postgresql:\/\//.test(url)) {
-    console.error(
-      'ERROR: El DATABASE_URL no empieza con "postgresql://" ni "postgres://". ' +
-        'Protocolo recibido: ' +
-        (url.split('://')[0] || '(vacío)')
-    );
-    process.exit(1);
-  }
-  console.log('Usando DATABASE_URL:', url.replace(/:[^:@]+@/, ':***@'));
+  console.log('Usando DATABASE_URL:', URL.replace(/:[^:@]+@/, ':***@'));
 
   console.log('Borrando datos del demo...');
   // Orden: Booking antes que Room (FK onDelete Cascade), el resto independientes.
