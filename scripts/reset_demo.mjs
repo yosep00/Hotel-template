@@ -8,12 +8,14 @@
 // Uso local:  DATABASE_URL="postgresql://...?pgbouncer=true&connection_limit=1&sslmode=require" node scripts/reset_demo.mjs
 // Programado: .github/workflows/reset-demo.yml (diario + manual).
 
+import { writeFileSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
 import { seedData } from './seed_data.mjs';
 
 // Normaliza la URL del secreto DEMO_DATABASE_URL ANTES de que Prisma la lea.
 // Prisma valida `schema.prisma` con env("DATABASE_URL") del entorno, así que
-// debemos reescribir process.env.DATABASE_URL con la forma que Prisma exige.
+// reescribimos process.env.DATABASE_URL y además escribimos un .env temporal
+// para forzar a Prisma a usar la URL normalizada (red de seguridad en CI).
 function normalize(raw) {
   if (!raw) return null;
   let u = String(raw).replace(/^﻿/, '').trim(); // quita BOM y espacios/saltos
@@ -42,8 +44,12 @@ if (!/^postgresql:\/\//.test(URL)) {
   process.exit(1);
 }
 
-// Reescribir la env var para que schema.prisma (env("DATABASE_URL")) la lea normalizada.
+console.log('Protocolo normalizado:', URL.split('://')[0]);
+
+// Reescribir la env var y un .env temporal para que schema.prisma (env("DATABASE_URL"))
+// lea la URL ya en postgresql:// en cualquier entorno (local o CI).
 process.env.DATABASE_URL = URL;
+writeFileSync('.env', `DATABASE_URL="${URL}"\n`);
 
 const prisma = new PrismaClient({
   // El pooler 6543 tiene connection_limit=1; forzamos una sola conexión al pool

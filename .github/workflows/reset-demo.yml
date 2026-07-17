@@ -30,8 +30,10 @@ jobs:
           echo "Secreto DEMO_DATABASE_URL presente."
 
       - name: Resetear base de datos del demo
-        run: node scripts/reset_demo.mjs
-        env:
-          # Secreto del repo (Settings > Secrets): debe ser el DATABASE_URL
-          # (pooler 6543) de la MISMA base que usa la demo en Vercel.
-          DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+        run: |
+          # Normaliza el secreto a postgresql:// (Supabase suele dar postgres://)
+          # y quita posibles saltos de línea/BOM que rompen la validación de Prisma.
+          RAW="${{ secrets.DEMO_DATABASE_URL }}"
+          NORM="$(printf '%s' "$RAW" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^postgres:\/\//postgresql:\/\//')"
+          echo "Protocolo recibido: ${NORM%%://*}"
+          DATABASE_URL="$NORM" node scripts/reset_demo.mjs
