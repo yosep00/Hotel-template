@@ -15,12 +15,19 @@ const prisma = new PrismaClient({
   // El pooler 6543 tiene connection_limit=1; forzamos una sola conexión al pool
   // para evitar "Connection pool timeout / Connection limit reached" durante el seed.
   datasources: process.env.DATABASE_URL
-    ? { db: { url: process.env.DATABASE_URL } }
+    ? {
+        db: {
+          url: process.env.DATABASE_URL.trim()
+            .replace(/^﻿/, '')
+            .replace(/^postgres:\/\//, 'postgresql://'),
+        },
+      }
     : undefined,
 });
 
 async function main() {
-  if (!process.env.DATABASE_URL) {
+  let raw = process.env.DATABASE_URL;
+  if (!raw) {
     console.error(
       'ERROR: Falta DATABASE_URL. Configura el secreto DEMO_DATABASE_URL en GitHub ' +
         '(Settings > Secrets and variables > Actions) con el DATABASE_URL (pooler 6543) ' +
@@ -28,7 +35,21 @@ async function main() {
     );
     process.exit(1);
   }
-  console.log('Usando DATABASE_URL:', process.env.DATABASE_URL.replace(/:[^:@]+@/, ':***@'));
+
+  // Normaliza: quita BOM/espacios/saltos de línea y acepta el protocolo
+  // corto `postgres://` que usa Supabase (Prisma exige `postgresql://`).
+  raw = raw.trim().replace(/^﻿/, '');
+  const url = raw.replace(/^postgres:\/\//, 'postgresql://');
+
+  if (!/^postgresql:\/\//.test(url)) {
+    console.error(
+      'ERROR: El DATABASE_URL no empieza con "postgresql://" ni "postgres://". ' +
+        'Protocolo recibido: ' +
+        (url.split('://')[0] || '(vacío)')
+    );
+    process.exit(1);
+  }
+  console.log('Usando DATABASE_URL:', url.replace(/:[^:@]+@/, ':***@'));
 
   console.log('Borrando datos del demo...');
   // Orden: Booking antes que Room (FK onDelete Cascade), el resto independientes.
